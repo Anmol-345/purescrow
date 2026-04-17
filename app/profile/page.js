@@ -8,16 +8,53 @@ import {
     History, 
     TrendingUp, 
     AlertTriangle,
-    CheckCircle
+    CheckCircle,
+    Wallet,
+    Lock
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useWallet } from "@/components/WalletProvider";
 
 export default function Profile() {
+    const { connected, publicKey, connect } = useWallet();
     const [score, setScore] = useState(100);
 
     useEffect(() => {
-        getUserReputation('GARD...').then(setScore);
-    }, []);
+        if (connected && publicKey) {
+            getUserReputation(publicKey).then(setScore);
+        }
+    }, [connected, publicKey]);
+
+    if (!connected) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-8 animate-fade-in text-center">
+                <div className="relative">
+                    <div className="w-24 h-24 rounded-3xl bg-zinc-900 flex items-center justify-center border border-zinc-800 shadow-2xl">
+                        <User className="text-zinc-600" size={40} />
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-accent-orange flex items-center justify-center shadow-lg border-4 border-[#0B0B0B]">
+                        <Lock className="text-white" size={18} />
+                    </div>
+                </div>
+                
+                <div className="max-w-md space-y-4">
+                    <h1 className="text-4xl font-black tracking-tighter text-white">
+                        Private <span className="text-accent-orange">Profile</span>
+                    </h1>
+                    <p className="text-zinc-500 font-medium">
+                        Connect your wallet to view your on-chain reputation stats, transaction history, and earned achievements.
+                    </p>
+                </div>
+
+                <button 
+                    onClick={connect}
+                    className="px-8 py-4 bg-accent-orange text-white font-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent-orange/10"
+                >
+                    CONNECT TO VIEW PROFILE
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-12 animate-fade-in">
@@ -33,8 +70,10 @@ export default function Profile() {
                 </div>
 
                 <div className="text-center md:text-left">
-                    <h1 className="text-3xl font-black mb-1">Anmol Stellar</h1>
-                    <code className="text-xs text-zinc-500 block mb-4">GARD...1234abcd5678efgh</code>
+                    <h1 className="text-3xl font-black mb-1">Stellar Operator</h1>
+                    <code className="text-xs text-zinc-500 block mb-4 break-all max-w-xs md:max-w-none">
+                        {publicKey}
+                    </code>
                     <div className="flex flex-wrap justify-center md:justify-start gap-3">
                         <Badge label="Verified Seller" />
                         <Badge label="Elite Arbitrator" />

@@ -2,10 +2,59 @@
 
 import { EscrowCard } from "@/components/ui/EscrowCard";
 import { MOCK_ESCROWS } from "@/lib/stellar";
-import { Search, Filter, TrendingUp, ShieldCheck, PlusCircle } from 'lucide-react';
+import { Search, Filter, TrendingUp, ShieldCheck, PlusCircle, Wallet, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { useWallet } from "@/components/WalletProvider";
 
 export default function Dashboard() {
+  const { connected, connect } = useWallet();
+
+  if (!connected) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-8 animate-fade-in text-center">
+        <div className="relative">
+          <div className="w-24 h-24 rounded-3xl bg-zinc-900 flex items-center justify-center border border-zinc-800 shadow-2xl">
+            <Lock className="text-zinc-600" size={40} />
+          </div>
+          <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-accent-red flex items-center justify-center shadow-lg border-4 border-[#0B0B0B]">
+            <Wallet className="text-white" size={18} />
+          </div>
+        </div>
+        
+        <div className="max-w-md space-y-4">
+          <h1 className="text-4xl font-black tracking-tighter text-white">
+            Secure Your <span className="text-accent-red">Identity</span>
+          </h1>
+          <p className="text-zinc-500 font-medium">
+            Connect your Stellar wallet to access your reputation-backed escrows and monitor network transactions.
+          </p>
+        </div>
+
+        <button 
+          onClick={connect}
+          className="px-8 py-4 bg-white text-black font-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/10"
+        >
+          CONNECT STELLAR WALLET
+        </button>
+
+        <div className="grid grid-cols-3 gap-8 pt-12 border-t border-zinc-900 w-full max-w-lg mt-12">
+           <div className="text-center">
+              <span className="block text-xl font-black text-white">0.02s</span>
+              <span className="text-[10px] font-bold text-zinc-600 uppercase">Avg Resolution</span>
+           </div>
+           <div className="text-center">
+              <span className="block text-xl font-black text-white">100%</span>
+              <span className="text-[10px] font-bold text-zinc-600 uppercase">Secure</span>
+           </div>
+           <div className="text-center">
+              <span className="block text-xl font-black text-white">4.2k+</span>
+              <span className="text-[10px] font-bold text-zinc-600 uppercase">Active Users</span>
+           </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-12 animate-fade-in">
       {/* Header Section */}
