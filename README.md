@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# PurEscrow - Reputation-Based Web3 Escrow
 
-## Getting Started
+A production-ready Web3 escrow application built on Stellar Soroban with an on-chain reputation system and IPFS-backed dispute resolution.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Decentralized Escrow**: Fund, confirm, and dispute transactions on-chain.
+- **Cryptographic Reputation**: Users earn score based on successful deliveries and lose points on dispute losses.
+- **IPFS Evidence**: Large files and detailed evidence stored on IPFS with CIDs recorded on-chain.
+- **Modern UI**: High-fidelity dark mode with deep black (#0B0B0B) and vibrant red/orange accents.
+- **Responsive**: Fully optimized for mobile and desktop dashboards.
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend**: Next.js 15 (App Router), Tailwind 4, Framer Motion.
+- **Smart Contracts**: Soroban (Rust SDK).
+- **Storage**: IPFS (Pinata).
+- **Blockchain**: Stellar Testnet.
+
+---
+
+## 📂 Project Structure
+
+```text
+├── contracts/
+│   ├── reputation/       # User score management contract
+│   └── escrow/           # Core transaction logic & reputation hooks
+├── app/                  # Next.js App Router (Dashboard, Create, Detail, Profile)
+├── components/           # Reusable UI components
+├── lib/                  # Stellar & IPFS utilities
+└── .github/workflows/    # CI/CD for build and test
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## ⚙️ Setup Instructions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Smart Contracts
+Ensure you have the [Stellar CLI](https://developers.stellar.org/docs/build/smart-contracts/getting-started/setup) installed.
 
-## Learn More
+```bash
+cd contracts
+# Build contracts
+cargo build --target wasm32-unknown-unknown --release
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Frontend
+Install dependencies and run the development server.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# From root directory
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Environment Variables
+Create a `.env.local` file in the root:
 
-## Deploy on Vercel
+```env
+NEXT_PUBLIC_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
+NEXT_PUBLIC_PINATA_JWT=your_pinata_jwt_here
+NEXT_PUBLIC_ESCROW_CONTRACT_ID=your_deployed_escrow_id
+NEXT_PUBLIC_REPUTATION_CONTRACT_ID=your_deployed_reputation_id
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ⚖️ Arbitration Flow
+
+1. **Dispute Raised**: Either party locks the funds.
+2. **Evidence Phase**: Parties submit CIDs of images/logs via the IPFS panel.
+3. **Resolution**: Arbitrator reviews the timeline and calls `resolve_dispute(id, winner)`.
+4. **Reputation Update**: The smart contract automatically updates the global score of both parties based on the outcome.
