@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "contracts/reputation",
+    "contracts/escrow",
+]
+
+[profile.release]
+overflow-checks = true
+lto = "thin"
+debug = false
+panic = "abort"

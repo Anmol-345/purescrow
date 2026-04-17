@@ -1,12 +1,8 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, vec, Address, Env, String, Symbol, Vec};
+use soroban_sdk::{contract, contractimpl, contracttype, vec, Address, Env, String, Vec, IntoVal};
 
-// Reference to Reputation Contract Client
-mod reputation_contract {
-    soroban_sdk::contractimport!(
-        file = "../reputation/target/wasm32-unknown-unknown/release/reputation.wasm"
-    );
-}
+// Removed contractimport to resolve environment-specific build issues
+// Using low-level invoke_contract for cross-contract calls
 
 #[contracttype]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -101,10 +97,13 @@ impl EscrowContract {
         escrow.status = EscrowStatus::Delivered;
         env.storage().persistent().set(&DataKey::Escrow(id), &escrow);
 
-        // Update Reputation
+        // Update Reputation via low-level call
         let rep_id: Address = env.storage().instance().get(&DataKey::ReputationId).unwrap();
-        let rep_client = reputation_contract::Client::new(&env, &rep_id);
-        rep_client.update_score(&escrow.recipient, &10); // Reward recipient with +10 reputation
+        env.invoke_contract::<()>(
+            &rep_id,
+            &soroban_sdk::Symbol::new(&env, "update_score"),
+            vec![&env, escrow.recipient.clone().into_val(&env), 10i32.into_val(&env)],
+        );
 
         env.events().publish(("escrow", "delivered", id), escrow.recipient);
     }
@@ -153,15 +152,26 @@ impl EscrowContract {
         escrow.status = EscrowStatus::Resolved;
         env.storage().persistent().set(&DataKey::Escrow(id), &escrow);
 
-        // Update Reputation
+        // Update Reputation via low-level call
         let rep_id: Address = env.storage().instance().get(&DataKey::ReputationId).unwrap();
-        let rep_client = reputation_contract::Client::new(&env, &rep_id);
-        
+
         if winner == escrow.recipient {
-            rep_client.update_score(&escrow.recipient, &15); // Large reward for winning dispute
-            rep_client.update_score(&escrow.sender, &-20);  // Penalty for false dispute
+            env.invoke_contract::<()>(
+                &rep_id,
+                &soroban_sdk::Symbol::new(&env, "update_score"),
+                vec![&env, escrow.recipient.clone().into_val(&env), 15i32.into_val(&env)],
+            );
+            env.invoke_contract::<()>(
+                &rep_id,
+                &soroban_sdk::Symbol::new(&env, "update_score"),
+                vec![&env, escrow.sender.clone().into_val(&env), (-20i32).into_val(&env)],
+            );
         } else {
-            rep_client.update_score(&escrow.recipient, &-30); // Heavy penalty for failing to deliver
+            env.invoke_contract::<()>(
+                &rep_id,
+                &soroban_sdk::Symbol::new(&env, "update_score"),
+                vec![&env, escrow.recipient.clone().into_val(&env), (-30i32).into_val(&env)],
+            );
         }
 
         env.events().publish(("escrow", "resolved", id), winner);

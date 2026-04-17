@@ -1,20 +1,6 @@
 "use client";
 
-import { use, useState } from 'react';
-import { MOCK_ESCROWS } from '@/lib/stellar';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { EvidenceTimeline } from '@/components/ui/EvidenceTimeline';
-import { uploadToIPFS } from '@/lib/ipfs';
-import { 
-    ArrowLeft, 
-    ShieldAlert, 
-    CheckCircle2, 
-    Upload, 
-    MessageSquare,
-    ExternalLink,
-    Gavel
-} from 'lucide-react';
-import Link from 'next/link';
+import { ArbitrationPanel } from '@/components/ui/ArbitrationPanel';
 
 export default function EscrowDetail({ params }) {
   const { id } = use(params);
@@ -57,15 +43,17 @@ export default function EscrowDetail({ params }) {
     }, 1500);
   };
 
+  const isDisputed = escrow.status === 'DISPUTED';
+
   return (
-    <div className="space-y-8 animate-fade-in">
-      <Link href="/" className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition-colors group">
+    <div className="space-y-8 animate-fade-in pb-20">
+      <Link href="/global-escrows" className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition-colors group">
         <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-        Back to Dashboard
+        Back to Marketplace
       </Link>
 
       {/* Main Header Card */}
-      <div className="card-glass border-l-4 border-accent-red">
+      <div className={`card-glass border-l-4 transition-all ${isDisputed ? 'border-accent-red ring-1 ring-accent-red/20 shadow-[0_0_30px_rgba(239,68,68,0.05)]' : 'border-zinc-800'}`}>
         <div className="flex flex-col md:flex-row justify-between gap-6">
             <div className="flex-1">
                 <div className="flex items-center gap-3 mb-4">
@@ -76,11 +64,11 @@ export default function EscrowDetail({ params }) {
                 <p className="text-zinc-400">Recipient: <span className="font-mono text-white">{escrow.recipient}</span></p>
             </div>
             
-            <div className="bg-zinc-950 p-6 rounded-2xl border border-zinc-800 flex flex-col items-center justify-center min-w-[200px]">
+            <div className={`p-6 rounded-2xl border flex flex-col items-center justify-center min-w-[200px] transition-colors ${isDisputed ? 'bg-accent-red/5 border-accent-red/20' : 'bg-zinc-950 border-zinc-800'}`}>
                 <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest mb-1">Escrowed Funds</span>
-                <span className="text-3xl font-black text-white">{escrow.amount}</span>
-                <div className="mt-2 text-[10px] text-green-500 font-bold bg-green-500/10 px-2 py-0.5 rounded">
-                    SECURED ON STELLAR
+                <span className={`text-3xl font-black ${isDisputed ? 'text-accent-red' : 'text-white'}`}>{escrow.amount}</span>
+                <div className={`mt-2 text-[10px] font-bold px-2 py-0.5 rounded ${isDisputed ? 'bg-accent-red/10 text-accent-red' : 'bg-green-500/10 text-green-500'}`}>
+                    {isDisputed ? "LOCKED IN DISPUTE" : "SECURED ON STELLAR"}
                 </div>
             </div>
         </div>
@@ -125,6 +113,11 @@ export default function EscrowDetail({ params }) {
 
         {/* Right Column: Interaction Panel */}
         <div className="space-y-6">
+            {/* Arbitration Panel for Disputed Escrows */}
+            {isDisputed && (
+                <ArbitrationPanel escrowId={escrow.id} status={escrow.status} />
+            )}
+
             <div className="card-glass bg-zinc-900/40">
                 <h4 className="font-bold flex items-center gap-2 mb-4">
                     <Upload size={18} className="text-accent-red" />

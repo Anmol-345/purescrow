@@ -5,3 +5,6 @@ members = [
     "reputation",
     "escrow",
 ]
+
+[profile.release]
+overflow-checks = true

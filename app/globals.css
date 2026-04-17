@@ -19,6 +19,41 @@
   h1, h2, h3, h4, h5, h6 {
     color: #FFFFFF;
   }
+
+  /* Stellar Wallet Kit Theme Overrides */
+  :root {
+    --swk-background: #0B0B0B !important;
+    --swk-background-secondary: #161616 !important;
+    --swk-foreground-strong: #FFFFFF !important;
+    --swk-foreground: #E4E4E7 !important;
+    --swk-foreground-secondary: #A1A1AA !important;
+    --swk-primary: #FF4D4D !important;
+    --swk-primary-foreground: #FFFFFF !important;
+    --swk-border: rgba(255, 255, 255, 0.1) !important;
+    --swk-border-radius: 1.25rem !important;
+    --swk-font-family: 'Inter', sans-serif !important;
+    --swk-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* Reset kit modal constraints */
+  .stellar-wallets-kit section {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  .stellar-wallets-kit section > section {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Custom scrollbar for kit */
+  .stellar-wallets-kit ::-webkit-scrollbar {
+    width: 6px;
+  }
+  .stellar-wallets-kit ::-webkit-scrollbar-thumb {
+    background: #27272A;
+    border-radius: 10px;
+  }
 }
 
 @layer components {

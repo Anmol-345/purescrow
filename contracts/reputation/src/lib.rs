@@ -37,7 +37,7 @@ impl ReputationContract {
         // Clamp score between 0 and 1000
         let final_score = if new_score < 0 { 0 } else if new_score > 1000 { 1000 } else { new_score };
 
-        env.storage().persistent().set(&DataKey::Score(user), &final_score);
+        env.storage().persistent().set(&DataKey::Score(user.clone()), &final_score);
         
         // Emit event
         env.events().publish(("reputation", "update", user), final_score);
