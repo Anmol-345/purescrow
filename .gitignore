@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# =========================
+# RUST (ALL CONTRACTS)
+# =========================
+target/
+**/target/
+
+# Cargo
+Cargo.lock
+# (Optional: keep Cargo.lock if building apps, ignore for libraries/contracts)
+
+# Build artifacts
+*.rlib
+*.rmeta
+*.d
+*.o
+
+# Debug symbols
+*.pdb

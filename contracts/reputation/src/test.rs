@@ -5,7 +5,7 @@ use soroban_sdk::{testutils::Address as _, Env};
 #[test]
 fn test_reputation() {
     let env = Env::default();
-    let contract_id = env.register(&ReputationContract, ());
+    let contract_id = env.register(ReputationContract, ());
     let client = ReputationContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
