@@ -120,22 +120,22 @@ export default function EscrowDetail({ params }) {
 
       {/* Main Header Card */}
       <div className={`card-glass border-l-4 transition-all ${isDisputed ? 'border-accent-red ring-1 ring-accent-red/20 shadow-[0_0_30px_rgba(239,68,68,0.05)]' : 'border-zinc-800'}`}>
-        <div className="flex flex-col md:flex-row justify-between gap-6">
-            <div className="flex-1 text-left">
-                <div className="flex items-center gap-3 mb-4">
+        <div className="flex flex-col lg:flex-row justify-between gap-6 lg:items-center">
+            <div className="flex-1 text-left space-y-4">
+                <div className="flex items-center gap-3">
                     <StatusBadge status={escrow.status} />
-                    <span className="text-zinc-500 text-xs font-mono">ID: {escrow.id}</span>
+                    <span className="text-zinc-500 text-[10px] md:text-xs font-mono truncate">ID: {escrow.id}</span>
                 </div>
-                <h1 className="text-3xl font-black mb-2">{escrow.description}</h1>
-                <div className="space-y-1">
-                    <p className="text-zinc-400 text-xs">Buyer: <span className="font-mono text-white/70">{escrow.sender === publicKey ? "You" : escrow.sender}</span></p>
-                    <p className="text-zinc-400 text-xs">Seller: <span className="font-mono text-white/70">{escrow.recipient === publicKey ? "You" : escrow.recipient}</span></p>
+                <h1 className="title-lg">{escrow.description}</h1>
+                <div className="space-y-1.5 pt-2">
+                    <p className="text-zinc-400 text-[10px] md:text-xs truncate">Buyer: <span className="font-mono text-white/70">{escrow.sender === publicKey ? "You" : escrow.sender}</span></p>
+                    <p className="text-zinc-400 text-[10px] md:text-xs truncate">Seller: <span className="font-mono text-white/70">{escrow.recipient === publicKey ? "You" : escrow.recipient}</span></p>
                 </div>
             </div>
             
-            <div className={`p-6 rounded-2xl border flex flex-col items-center justify-center min-w-[200px] transition-colors ${isDisputed ? 'bg-accent-red/5 border-accent-red/20' : 'bg-zinc-950 border-zinc-800'}`}>
+            <div className={`p-6 rounded-2xl border flex flex-col items-center justify-center min-w-full lg:min-w-[240px] transition-colors ${isDisputed ? 'bg-accent-red/5 border-accent-red/20' : 'bg-zinc-950 border-zinc-800'}`}>
                 <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest mb-1">Escrowed Funds</span>
-                <span className={`text-3xl font-black ${isDisputed ? 'text-accent-red' : 'text-white'}`}>{escrow.amount}</span>
+                <span className={`text-3xl md:text-4xl font-black ${isDisputed ? 'text-accent-red' : 'text-white'}`}>{escrow.amount}</span>
                 <div className={`mt-2 text-[10px] font-bold px-2 py-0.5 rounded ${isDisputed ? 'bg-accent-red/10 text-accent-red' : 'bg-green-500/10 text-green-500'}`}>
                     {isDisputed ? "LOCKED IN DISPUTE" : "SECURED ON STELLAR"}
                 </div>

@@ -25,9 +25,11 @@ export default function RootLayout({ children }) {
             <MobileHeader />
 
             {/* Main Content Area */}
-            <main className="flex-1 transition-all duration-500 pt-20 md:pt-12 md:ml-64 pb-24 md:pb-12 px-2 md:px-12 min-h-screen bg-[#0B0B0B]">
-              <div className="max-w-6xl mx-auto">
-                {children}
+            <main className="flex-1 transition-all duration-500 pt-20 md:pt-12 md:ml-64 pb-24 md:pb-12 px-0 min-h-screen bg-[#0B0B0B] overflow-x-hidden">
+              <div className="section-padding py-8">
+                <div className="max-w-7xl mx-auto">
+                  {children}
+                </div>
               </div>
             </main>
 

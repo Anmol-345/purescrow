@@ -111,12 +111,12 @@ export default function Dashboard() {
   return (
     <div className="space-y-12 animate-fade-in">
       {/* Header Section */}
-      <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter">
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 sm:gap-8">
+        <div className="space-y-2">
+          <h1 className="title-xl">
             Your <span className="text-accent-red">Escrows</span>
           </h1>
-          <p className="text-zinc-500 max-w-lg">
+          <p className="text-zinc-500 max-w-lg text-sm md:text-base leading-relaxed">
             Monitor active transactions, manage disputes, and track your cryptographic reputation in real-time.
           </p>
         </div>
@@ -144,20 +144,20 @@ export default function Dashboard() {
       </section>
 
       {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={18} />
           <input
             type="text"
-            placeholder="Search by ID, recipient, or description..."
+            placeholder="Search transactions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-accent-red/20 focus:border-accent-red transition-all"
+            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3.5 md:py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-accent-red/20 focus:border-accent-red transition-all"
           />
         </div>
         <button
           onClick={loadData}
-          className="flex items-center gap-2 px-6 py-4 bg-zinc-900 border border-zinc-800 rounded-xl text-sm font-bold text-zinc-300 hover:bg-zinc-800 transition-colors"
+          className="flex items-center justify-center gap-2 px-6 py-3.5 md:py-4 bg-zinc-900 border border-zinc-800 rounded-xl text-sm font-bold text-zinc-300 hover:bg-zinc-800 transition-colors active:scale-95"
         >
           <TrendingUp size={18} className={loading ? "animate-spin" : ""} />
           Refresh

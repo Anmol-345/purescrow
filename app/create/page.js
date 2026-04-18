@@ -36,13 +36,10 @@ export default function CreateEscrow() {
 
   return (
     <div className="max-w-2xl mx-auto py-8 animate-fade-in">
-
-      <div className="mb-12">
-        <h1 className="text-4xl font-black mb-4 tracking-tighter">
-          Create <span className="text-accent-red">Escrow</span>
-        </h1>
-        <p className="text-zinc-500">
-          Enter the recipient's Stellar address and transaction details. The funds will be locked until both parties confirm delivery.
+      <div className="mb-10 text-center md:text-left">
+        <h1 className="title-xl mb-4">Initialize <span className="text-accent-red">Escrow</span></h1>
+        <p className="text-zinc-500 text-sm md:text-base">
+          Establish a secure, reputation-backed transaction. The funds will be held in a decentralized contract until delivery is confirmed.
         </p>
       </div>
 

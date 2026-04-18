@@ -25,9 +25,9 @@ export function EscrowCard({ id, description, amount, status, recipient, reputat
                 {description}
             </h3>
 
-            <div className="flex items-center gap-2 text-zinc-400 text-sm mb-6 overflow-hidden">
+            <div className="flex items-center gap-2 text-zinc-400 text-xs mb-6 overflow-hidden">
                 <User size={14} className="shrink-0" />
-                <span className="truncate">To: <span className="text-zinc-300 font-mono text-[10px] sm:text-xs">{recipient}</span></span>
+                <span className="truncate flex-1">To: <span className="text-zinc-300 font-mono text-[10px] sm:text-xs tracking-tighter">{recipient}</span></span>
             </div>
 
             <div className="flex justify-between items-center bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/50">

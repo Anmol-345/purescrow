@@ -95,40 +95,40 @@ export default function Profile() {
     return (
         <div className="space-y-12 animate-fade-in">
             {/* Header / Avatar Section */}
-            <section className="flex flex-col md:flex-row items-center gap-8 py-8 px-8 card-glass border-b-4 border-accent-orange bg-gradient-to-br from-zinc-950 to-zinc-900">
-                <div className="relative group">
-                    <div className="w-32 h-32 rounded-3xl bg-zinc-900 border-2 border-zinc-800 flex items-center justify-center overflow-hidden shadow-2xl group-hover:border-accent-orange transition-colors">
-                        <User size={64} className="text-zinc-700 group-hover:text-white transition-colors" />
+            <section className="flex flex-col lg:flex-row items-center gap-6 md:gap-8 py-6 md:py-8 px-6 md:px-8 card-glass border-b-4 border-accent-orange bg-gradient-to-br from-zinc-950 to-zinc-900 overflow-hidden">
+                <div className="relative group shrink-0">
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-zinc-900 border-2 border-zinc-800 flex items-center justify-center overflow-hidden shadow-2xl group-hover:border-accent-orange transition-colors">
+                        <User size={48} className="text-zinc-700 md:size-16 group-hover:text-white transition-colors" />
                     </div>
-                    <div className="absolute -bottom-2 -right-2 bg-accent-orange p-2 rounded-xl shadow-lg shadow-accent-orange/20">
-                        <ShieldCheck size={20} className="text-white" />
+                    <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 bg-accent-orange p-1.5 md:p-2 rounded-xl shadow-lg shadow-accent-orange/20">
+                        <ShieldCheck size={16} className="text-white md:size-5" />
                     </div>
                 </div>
 
-                <div className="text-center md:text-left flex-1 min-w-0">
-                    <h1 className="text-3xl font-black mb-1">Stellar Operator</h1>
+                <div className="text-center lg:text-left flex-1 min-w-0 w-full">
+                    <h1 className="title-lg mb-2">Stellar Operator</h1>
                     <div 
                         onClick={copyAddress}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/50 border border-zinc-800 cursor-pointer hover:bg-zinc-800 transition-colors group mb-4 max-w-full"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/50 border border-zinc-800 cursor-pointer hover:bg-zinc-800 transition-colors group mb-4 max-w-full overflow-hidden"
                     >
-                        <code className="text-[10px] md:text-xs text-zinc-400 font-mono">
-                            {publicKey.slice(0, 12)}....{publicKey.slice(-12)}
+                        <code className="text-[9px] sm:text-xs text-zinc-400 font-mono truncate max-w-[150px] sm:max-w-none">
+                            {publicKey.slice(0, 10)}...{publicKey.slice(-10)}
                         </code>
                         {copied ? (
-                            <CheckCircle size={14} className="text-green-500" />
+                            <CheckCircle size={14} className="text-green-500 shrink-0" />
                         ) : (
-                            <Copy size={14} className="text-zinc-600 group-hover:text-zinc-400" />
+                            <Copy size={14} className="text-zinc-600 group-hover:text-zinc-400 shrink-0" />
                         )}
                     </div>
-                    <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                    <div className="flex flex-wrap justify-center lg:justify-start gap-2 sm:gap-3">
                         <Badge label="Verified User" />
                         <Badge label={score > 500 ? "Power Arbitrator" : "Emerging Member"} />
                     </div>
                 </div>
 
-                <div className="w-full md:w-auto md:ml-auto flex flex-col items-center border-t md:border-t-0 md:border-l border-zinc-800 pt-8 md:pt-0 md:pl-8">
-                    <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest mb-1">Current Reputation</span>
-                    <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-accent-red to-accent-orange">
+                <div className="w-full lg:w-auto lg:ml-auto flex flex-col items-center border-t lg:border-t-0 lg:border-l border-zinc-800 pt-6 lg:pt-0 lg:pl-8">
+                    <span className="text-[9px] md:text-[10px] uppercase font-bold text-zinc-500 tracking-widest mb-1">Current Reputation</span>
+                    <span className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-accent-red to-accent-orange">
                         {loading ? "..." : score}
                     </span>
                 </div>
@@ -205,38 +205,6 @@ function StatCard({ icon, label, value }) {
             <div>
                 <span className="block text-[10px] uppercase font-bold text-zinc-500 tracking-widest">{label}</span>
                 <span className="text-2xl font-black">{value}</span>
-            </div>
-        </div>
-    );
-}
-
-function HistoryItem({ action, project, delta, date }) {
-    const isPositive = delta.startsWith('+');
-    return (
-        <div className="flex items-center justify-between py-2 border-b border-zinc-800/50 last:border-0 hover:bg-zinc-800/10 px-2 rounded-lg transition-colors">
-            <div>
-                <h4 className="text-sm font-bold text-zinc-200">{action}</h4>
-                <p className="text-[10px] text-zinc-500 font-mono uppercase">{project}</p>
-            </div>
-            <div className="text-right">
-                <span className={`text-sm font-black ${isPositive ? 'text-green-500' : delta === '0' ? 'text-zinc-500' : 'text-red-500'}`}>
-                    {delta}
-                </span>
-                <p className="text-[10px] text-zinc-600 mt-1">{date}</p>
-            </div>
-        </div>
-    );
-}
-
-function Achievement({ title, description, earned = false }) {
-    return (
-        <div className={`flex gap-4 p-3 rounded-xl border ${earned ? 'border-zinc-800 bg-zinc-900/30' : 'border-zinc-900/50 opacity-40 grayscale'}`}>
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${earned ? 'bg-orange-400/10 text-orange-400' : 'bg-zinc-900 text-zinc-700'}`}>
-                <Award size={18} />
-            </div>
-            <div>
-                <h5 className="text-xs font-bold text-zinc-200">{title}</h5>
-                <p className="text-[10px] text-zinc-500 leading-tight">{description}</p>
             </div>
         </div>
     );

@@ -59,8 +59,8 @@ export default function GlobalMarketplace() {
   return (
     <div className="space-y-10 animate-fade-in pb-20">
       {/* Hero Header */}
-      <section className="hidden md:block relative overflow-hidden rounded-3xl bg-zinc-900 border border-zinc-800 p-8">
-        <div className="absolute top-0 right-0 p-8 opacity-10">
+      <section className="hidden sm:block relative overflow-hidden rounded-3xl bg-zinc-900 border border-zinc-800 p-6 md:p-8 lg:p-12 mb-8">
+        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <Globe size={240} className="text-accent-red" />
         </div>
 
@@ -69,10 +69,10 @@ export default function GlobalMarketplace() {
             <Sparkles size={12} />
             Network Marketplace
           </div>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
+          <h1 className="title-xl">
             Global <span className="text-accent-red">Escrows</span>
           </h1>
-          <p className="text-zinc-400 text-lg leading-relaxed">
+          <p className="text-zinc-400 text-sm md:text-lg leading-relaxed max-w-xl">
             The public ledger of active, disputed, and completed reputation-backed transactions on the Stellar network. Search, monitor, and participate in decentralized arbitration.
           </p>
         </div>
