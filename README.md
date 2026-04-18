@@ -52,9 +52,9 @@
 ## 📱 Fully Responsive
 
 <div align="center">
-  <img src="public/mobile-responsive.png" alt="Mobile Responsive Design" width="85%"/>
+  <img src="public/mobile-responsive.png" alt="Mobile Responsive Design" width="20%"/>
   <br/>
-  <sub>Glassmorphism UI · Bottom Navigation on Mobile · Fluid Typography</sub>
+  <sub>Clean UI · Bottom Navigation on Mobile · Auto Dark Mode</sub>
 </div>
 
 ---
