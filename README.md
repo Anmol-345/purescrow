@@ -28,6 +28,12 @@
 
 <br/>
 
+### 🌐 Live Demo
+
+**[purescrow.vercel.app](https://purescrow.vercel.app/)**
+
+<br/>
+
 </div>
 
 ---
@@ -54,7 +60,7 @@
 <div align="center">
   <img src="public/mobile-responsive.png" alt="Mobile Responsive Design" width="20%"/>
   <br/>
-  <sub>Clean UI · Bottom Navigation on Mobile · Auto Dark Mode</sub>
+  <sub>Clean UI · Bottom Navigation on Mobile · Fluid Typography</sub>
 </div>
 
 ---
