@@ -37,12 +37,12 @@
 <table>
   <tr>
     <td width="50%">
-      <img src="/glimpse1.png" alt="PurEscrow Dashboard" width="100%" style="border-radius:8px"/>
-      <p align="center"><sub>Personal Dashboard — Active Escrows & Reputation Score</sub></p>
+      <img src="public/glimpse1.png" alt="Global Escrow Marketplace" width="100%"/>
+      <p align="center"><sub>Global Escrow Marketplace — All On-Chain Transactions</sub></p>
     </td>
     <td width="50%">
-      <img src="/glimpse2.png" alt="PurEscrow Escrow Detail" width="100%" style="border-radius:8px"/>
-      <p align="center"><sub>Escrow Detail — IPFS Evidence Panel & Arbitration Flow</sub></p>
+      <img src="public/glimpse2.png" alt="User Reputation Profile" width="100%"/>
+      <p align="center"><sub>User Profile — Reputation Analytics & Achievement Showcase</sub></p>
     </td>
   </tr>
 </table>
@@ -52,7 +52,7 @@
 ## 📱 Fully Responsive
 
 <div align="center">
-  <img src="/mobile-responsive.png" alt="Mobile Responsive Design" width="85%"/>
+  <img src="public/mobile-responsive.png" alt="Mobile Responsive Design" width="85%"/>
   <br/>
   <sub>Glassmorphism UI · Bottom Navigation on Mobile · Fluid Typography</sub>
 </div>
@@ -62,7 +62,7 @@
 ## ⚙️ CI/CD Pipeline
 
 <div align="center">
-  <img src="/ci-cd.png" alt="CI/CD Pipeline — All Checks Passing" width="90%"/>
+  <img src="public/ci-cd.png" alt="CI/CD Pipeline — All Checks Passing" width="90%"/>
   <br/>
   <sub>GitHub Actions · Soroban Contract Build → Testnet Deploy → Integration Smoke Test</sub>
 </div>
