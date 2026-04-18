@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, vec, Address, Env, String, Vec, IntoVal};
+use soroban_sdk::{contract, contractimpl, contracttype, contractevent, vec, Address, Env, String, Vec, IntoVal};
 
 // Removed contractimport to resolve environment-specific build issues
 // Using low-level invoke_contract for cross-contract calls
@@ -24,6 +24,43 @@ pub struct Escrow {
     pub description: String,
     pub status: EscrowStatus,
     pub evidence_cids: Vec<String>,
+}
+
+#[contractevent]
+pub struct EscrowCreatedEvent {
+    pub id: u64,
+    pub sender: Address,
+}
+
+#[contractevent]
+pub struct EscrowFundedEvent {
+    pub id: u64,
+    pub sender: Address,
+}
+
+#[contractevent]
+pub struct EscrowDeliveredEvent {
+    pub id: u64,
+    pub recipient: Address,
+}
+
+#[contractevent]
+pub struct EscrowDisputedEvent {
+    pub id: u64,
+    pub caller: Address,
+}
+
+#[contractevent]
+pub struct EscrowEvidenceEvent {
+    pub id: u64,
+    pub caller: Address,
+    pub cid: String,
+}
+
+#[contractevent]
+pub struct EscrowResolvedEvent {
+    pub id: u64,
+    pub winner: Address,
 }
 
 #[contracttype]
@@ -64,7 +101,7 @@ impl EscrowContract {
         env.storage().persistent().set(&DataKey::Escrow(new_id), &escrow);
         env.storage().instance().set(&DataKey::Counter, &new_id);
 
-        env.events().publish(("escrow", "created", new_id), sender);
+        EscrowCreatedEvent { id: new_id, sender }.publish(&env);
         new_id
     }
 
@@ -80,7 +117,7 @@ impl EscrowContract {
         escrow.status = EscrowStatus::Funded;
         env.storage().persistent().set(&DataKey::Escrow(id), &escrow);
 
-        env.events().publish(("escrow", "funded", id), escrow.sender);
+        EscrowFundedEvent { id, sender: escrow.sender }.publish(&env);
     }
 
     /// Confirm delivery - moves funds to recipient and increases reputation
@@ -103,7 +140,7 @@ impl EscrowContract {
             vec![&env, escrow.recipient.clone().into_val(&env)],
         );
 
-        env.events().publish(("escrow", "delivered", id), escrow.recipient);
+        EscrowDeliveredEvent { id, recipient: escrow.recipient }.publish(&env);
     }
 
     /// Raise a dispute
@@ -118,7 +155,7 @@ impl EscrowContract {
         escrow.status = EscrowStatus::Disputed;
         env.storage().persistent().set(&DataKey::Escrow(id), &escrow);
 
-        env.events().publish(("escrow", "disputed", id), caller);
+        EscrowDisputedEvent { id, caller }.publish(&env);
     }
 
     /// Submit evidence (IPFS CID)
@@ -133,7 +170,7 @@ impl EscrowContract {
         escrow.evidence_cids.push_back(cid.clone());
         env.storage().persistent().set(&DataKey::Escrow(id), &escrow);
 
-        env.events().publish(("escrow", "evidence", id), (caller, cid));
+        EscrowEvidenceEvent { id, caller, cid }.publish(&env);
     }
 
     /// Resolve dispute (Arbitrator only - requires score >= 150)
@@ -197,7 +234,7 @@ impl EscrowContract {
             );
         }
 
-        env.events().publish(("escrow", "resolved", id), winner);
+        EscrowResolvedEvent { id, winner }.publish(&env);
     }
 
     /// Getter: Get counter value

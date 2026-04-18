@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Vec, vec};
+use soroban_sdk::{contract, contractimpl, contracttype, contractevent, Address, Env, Vec, vec};
 
 #[contracttype]
 pub enum Achievement {
@@ -8,6 +8,18 @@ pub enum Achievement {
     DisputeWinner = 3,
     Arbitrator = 4,
     EliteStatus = 5,
+}
+
+#[contractevent]
+pub struct AchievementAwardedEvent {
+    pub user: Address,
+    pub id: u32,
+}
+
+#[contractevent]
+pub struct ScoreUpdatedEvent {
+    pub user: Address,
+    pub score: i32,
 }
 
 #[contracttype]
@@ -52,7 +64,7 @@ impl ReputationContract {
         if !achievements.contains(id_val) {
             achievements.push_back(id_val);
             env.storage().persistent().set(&DataKey::Achievements(user.clone()), &achievements);
-            env.events().publish(("achievement_awarded", user), id_val);
+            AchievementAwardedEvent { user, id: id_val }.publish(&env);
         }
     }
 
@@ -104,7 +116,7 @@ impl ReputationContract {
             Self::award_achievement(&env, user.clone(), Achievement::EliteStatus);
         }
 
-        env.events().publish(("reputation", "update", user), final_score);
+        ScoreUpdatedEvent { user, score: final_score }.publish(&env);
     }
 }
 

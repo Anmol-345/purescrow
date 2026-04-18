@@ -5,13 +5,14 @@ use soroban_sdk::{testutils::Address as _, Env};
 #[test]
 fn test_reputation() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, ReputationContract);
+    let contract_id = env.register(&ReputationContract, ());
     let client = ReputationContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
+    let initial_arbitrator = Address::generate(&env);
     let user = Address::generate(&env);
 
-    client.init(&admin);
+    client.init(&admin, &initial_arbitrator);
     
     // Default score
     assert_eq!(client.get_score(&user), 100);
