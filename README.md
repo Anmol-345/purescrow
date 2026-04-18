@@ -76,7 +76,7 @@
 | 🔐 **Decentralized Escrow** | Fund, confirm, and dispute transactions fully on-chain via Soroban smart contracts |
 | 🏆 **On-Chain Reputation** | Scores (0–1000) updated autonomously after every delivery or dispute resolution |
 | 🏛️ **Qualified Arbitration** | Users with Reputation ≥ 150 unlock Arbitrator status for dispute resolution |
-| 📁 **IPFS Evidence** | Large files and dispute evidence stored on IPFS (Pinata); CIDs recorded on-chain |
+| 📁 **IPFS Evidence** *(mockup)* | Evidence upload UI and CID flow are simulated — Pinata integration is a UI mockup, not yet wired to a live node |
 | 🎖️ **NFT Achievements** | Milestone badges minted by the Reputation contract upon verified delivery streaks |
 | 📊 **Global Marketplace** | Public feed of all on-chain escrows with live status and party reputation |
 | 🌑 **Premium Dark UI** | Deep black (`#0B0B0B`), Red/Orange accents, glassmorphism borders throughout |
@@ -107,11 +107,11 @@
 │   └──────────────────────┘   │  get_score()             │  │
 │                               └──────────────────────────┘  │
 └──────────────────────────┬──────────────────────────────────┘
-                           │  IPFS CID stored on-chain
+                           │  IPFS CID stored on-chain (mockup)
                            ▼
                    ┌───────────────┐
                    │  IPFS / Pinata │
-                   │  Evidence files│
+                   │  (UI mockup)   │
                    └───────────────┘
 ```
 
@@ -125,7 +125,7 @@
 | **Smart Contracts** | Rust · Soroban SDK · Dual-contract architecture |
 | **Blockchain** | Stellar Testnet (Soroban RPC) |
 | **Wallet** | `@stellar/stellar-wallets-kit` · Freighter |
-| **Storage** | IPFS via Pinata (evidence files + CID on-chain) |
+| **Storage** | IPFS via Pinata *(mockup — UI simulated, not live)* |
 | **CI/CD** | GitHub Actions |
 
 ---
@@ -218,7 +218,7 @@ NEXT_PUBLIC_REPUTATION_CONTRACT_ID=CC5I3XKXAOBVZOSP3Y64N2ZP5LLKSNSX5FK2P4UU47BYK
    → Funds locked in contract, dispute timer begins
 
 2. EVIDENCE PHASE
-   Both parties upload files to IPFS via Pinata
+   Both parties upload files via the IPFS evidence panel (UI mockup — Pinata not live)
    → CIDs submitted on-chain via submit_evidence(escrow_id, cid)
 
 3. ARBITRATOR REVIEW
