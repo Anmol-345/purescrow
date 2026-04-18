@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Send, Info, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
+import { Send, Info, AlertCircle } from 'lucide-react';
+import { createEscrow } from '@/lib/stellar';
 
 export default function CreateEscrow() {
   const router = useRouter();
@@ -18,19 +18,24 @@ export default function CreateEscrow() {
     e.preventDefault();
     setLoading(true);
     
-    // Simulate IPFS and Contract call
-    setTimeout(() => {
-        setLoading(false);
+    try {
+        console.log("Initializing real escrow transaction...");
+        await createEscrow(
+            formData.recipient,
+            formData.amount,
+            formData.description
+        );
         router.push('/');
-    }, 2000);
+    } catch (error) {
+        console.error("Escrow creation failed:", error);
+        alert(`Transaction failed: ${error.message}`);
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
     <div className="max-w-2xl mx-auto py-8 animate-fade-in">
-      <Link href="/" className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition-colors mb-8 group">
-        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-        Back to Dashboard
-      </Link>
 
       <div className="mb-12">
         <h1 className="text-4xl font-black mb-4 tracking-tighter">

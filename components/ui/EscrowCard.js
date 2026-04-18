@@ -15,13 +15,19 @@ export function EscrowCard({ id, description, amount, status, recipient, reputat
                 </div>
             </div>
 
+            <div className="mb-1">
+                <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-tighter">
+                    ID: {id.slice(0, 6)}....{id.slice(-4)}
+                </span>
+            </div>
+
             <h3 className="text-xl font-bold mb-2 group-hover:text-accent-red transition-colors">
                 {description}
             </h3>
 
-            <div className="flex items-center gap-2 text-zinc-400 text-sm mb-6">
-                <User size={14} />
-                <span>To: <span className="text-zinc-300 font-mono">{recipient}</span></span>
+            <div className="flex items-center gap-2 text-zinc-400 text-sm mb-6 overflow-hidden">
+                <User size={14} className="shrink-0" />
+                <span className="truncate">To: <span className="text-zinc-300 font-mono text-[10px] sm:text-xs">{recipient}</span></span>
             </div>
 
             <div className="flex justify-between items-center bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/50">

@@ -9,7 +9,7 @@ export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-20 md:w-64 border-r border-zinc-800 bg-zinc-950 flex flex-col items-center md:items-start py-8 px-4 gap-8 fixed h-full z-50">
+    <aside className="hidden md:flex w-64 border-r border-zinc-800 bg-zinc-950 flex-col items-start py-8 px-4 gap-8 fixed h-full z-50">
       <Link href="/" className="flex items-center gap-3 px-2 mb-8 hover:opacity-80 transition-opacity">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-red to-accent-orange flex items-center justify-center shadow-lg shadow-accent-red/20">
           <Shield className="text-white" size={24} />

@@ -12,6 +12,12 @@ export default function Dashboard() {
   const [escrows, setEscrows] = React.useState([]);
   const [reputation, setReputation] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [networkStats, setNetworkStats] = React.useState({
+    active: 0,
+    totalValue: 0,
+    resolved: 0,
+    disputeRate: 0
+  });
   const [searchTerm, setSearchTerm] = React.useState("");
 
   React.useEffect(() => {
@@ -33,6 +39,14 @@ export default function Dashboard() {
         e.sender === publicKey || e.recipient === publicKey
       );
 
+      // Calculate Network Stats
+      const active = allEscrows.filter(e => e.status === 'FUNDED' || e.status === 'DELIVERED').length;
+      const totalValue = allEscrows.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+      const resolved = allEscrows.filter(e => e.status === 'COMPLETED' || e.status === 'RESOLVED').length;
+      const disputed = allEscrows.filter(e => e.status === 'DISPUTED').length;
+      const disputeRate = allEscrows.length > 0 ? (disputed / allEscrows.length) * 100 : 0;
+
+      setNetworkStats({ active, totalValue, resolved, disputeRate });
       setEscrows(userEscrows);
       setReputation(score);
     } catch (error) {
@@ -107,8 +121,8 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <div className="flex bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800 gap-2">
-          <div className="bg-zinc-950 px-6 py-3 rounded-xl flex items-center gap-3 border border-zinc-800 shadow-inner">
+        <div className="flex bg-zinc-900/50 p-1.5 rounded-2xl border border-zinc-800 gap-1.5 w-full md:w-auto overflow-x-auto no-scrollbar">
+          <div className="bg-zinc-950 px-4 py-2.5 rounded-xl flex items-center gap-3 border border-zinc-800 shadow-inner shrink-0 md:shrink">
             <TrendingUp className="text-green-500" size={18} />
             <div>
               <span className="block text-[10px] uppercase font-bold text-zinc-500">Global Reputation</span>
@@ -117,7 +131,7 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          <div className="bg-zinc-950 px-6 py-3 rounded-xl flex items-center gap-3 border border-zinc-800 shadow-inner">
+          <div className="bg-zinc-950 px-4 py-2.5 rounded-xl flex items-center gap-3 border border-zinc-800 shadow-inner shrink-0 md:shrink">
             <ShieldCheck className="text-accent-orange" size={18} />
             <div>
               <span className="block text-[10px] uppercase font-bold text-zinc-500">Trust Index</span>
@@ -176,7 +190,7 @@ export default function Dashboard() {
         )}
 
         {/* Create CTA Card */}
-        <Link href="/create" className="border-2 border-dashed border-zinc-800 rounded-2xl flex flex-col items-center justify-center p-8 gap-4 hover:border-accent-red/50 hover:bg-accent-red/[0.02] transition-all cursor-pointer group min-h-[250px]">
+        <Link href="/create" className="border-2 border-dashed border-zinc-800 rounded-2xl flex flex-col items-center justify-center p-6 md:p-8 gap-4 hover:border-accent-red/50 hover:bg-accent-red/[0.02] transition-all cursor-pointer group min-h-[220px]">
           <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center group-hover:scale-110 transition-transform">
             <PlusCircle className="text-zinc-600 group-hover:text-accent-red" size={24} />
           </div>
@@ -191,10 +205,10 @@ export default function Dashboard() {
       <section className="pt-8 border-t border-zinc-900">
         <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-600 mb-6">Network Insights</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatBox label="Active Escrows" value="12" delta="+2" />
-          <StatBox label="Total Value" value="4.2k XLM" delta="+540" />
-          <StatBox label="Resolved" value="128" delta="+12" />
-          <StatBox label="Dispute Rate" value="0.8%" delta="-0.2%" />
+          <StatBox label="Active Escrows" value={loading ? "..." : networkStats.active} delta={networkStats.active > 0 ? `+${networkStats.active}` : "0"} />
+          <StatBox label="Total Value" value={loading ? "..." : `${networkStats.totalValue.toLocaleString()} XLM`} delta="+--" />
+          <StatBox label="Resolved" value={loading ? "..." : networkStats.resolved} delta={networkStats.resolved > 0 ? `+${networkStats.resolved}` : "0"} />
+          <StatBox label="Dispute Rate" value={loading ? "..." : `${networkStats.disputeRate.toFixed(1)}%`} delta={networkStats.disputeRate > 5 ? "caution" : "safe"} />
         </div>
       </section>
     </div>
@@ -202,15 +216,19 @@ export default function Dashboard() {
 }
 
 function StatBox({ label, value, delta }) {
-  const isPositive = delta.startsWith('+');
+  const isPositive = delta.startsWith('+') || delta === 'safe';
+  const isNegative = delta === 'caution';
+
   return (
-    <div className="bg-zinc-950 p-6 rounded-2xl border border-zinc-900 shadow-sm">
-      <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-2">{label}</span>
+    <div className="bg-zinc-950 p-3 sm:p-5 rounded-2xl border border-zinc-900 shadow-sm transition-all hover:border-zinc-800">
+      <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5 md:mb-2">{label}</span>
       <div className="flex items-end justify-between">
         <span className="text-2xl font-black text-white">{value}</span>
-        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isPositive ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-          {delta}
-        </span>
+        {delta !== "+--" && (
+          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isPositive ? 'bg-green-500/10 text-green-500' : isNegative ? 'bg-red-500/10 text-red-500' : 'bg-zinc-800 text-zinc-500'}`}>
+            {delta.toUpperCase()}
+          </span>
+        )}
       </div>
     </div>
   );

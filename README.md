@@ -42,8 +42,8 @@ Ensure you have the [Stellar CLI](https://developers.stellar.org/docs/build/smar
 
 ```bash
 cd contracts
-# Build contracts
-cargo build --target wasm32-unknown-unknown --release
+# Build contracts (using wasm32v1-none for compatibility with Rust 1.84+)
+cargo build --target wasm32v1-none --release
 ```
 
 ### 2. Frontend
@@ -60,8 +60,8 @@ Create a `.env.local` file in the root:
 
 ```env
 NEXT_PUBLIC_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
-NEXT_PUBLIC_ESCROW_CONTRACT_ID=CDYYU2CNZBXEBOZTOG7LOYRPQ4MEATETKJVKTOBQ5PPBA6X4MEB35GP6
-NEXT_PUBLIC_REPUTATION_CONTRACT_ID=CAFPMRKE6RX5GUGI5H2UZOKJH3ZXWPKN3NKE26RCQ3DMBDIPKW5LNXCA
+NEXT_PUBLIC_ESCROW_CONTRACT_ID=CDK2GV7L5LBUEVJ3COZ2BIJBL6B2POQQZYND62MONEK4G3VMTIJXWNAK
+NEXT_PUBLIC_REPUTATION_CONTRACT_ID=CC5I3XKXAOBVZOSP3Y64N2ZP5LLKSNSX5FK2P4UU47BYKCO2O47INAQN
 ```
 
 ---
@@ -72,3 +72,15 @@ NEXT_PUBLIC_REPUTATION_CONTRACT_ID=CAFPMRKE6RX5GUGI5H2UZOKJH3ZXWPKN3NKE26RCQ3DMB
 2. **Evidence Phase**: Parties submit CIDs of images/logs via the IPFS panel.
 3. **Resolution**: Qualified Arbitrators (Reputation >= 150) review the timeline and call `resolve_dispute(id, winner, arbitrator)`.
 4. **Reputation Update**: The smart contract automatically updates the global score of both parties based on the outcome.
+
+---
+
+## ✅ Proof of Work (Verified Flow)
+
+The automated reputation update via cross-contract calls has been verified on the Stellar Testnet.
+
+- **Transaction Hash**: `58a498db40cc18b3d382be7b88176b7e3b8db51da57290c4b37891e97d73f65e`
+- **Flow**: `Escrow::confirm_delivery` ⮕ `Reputation::record_deal`
+- **Verified On**: [Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/58a498db40cc18b3d382be7b88176b7e3b8db51da57290c4b37891e97d73f65e)
+
+This transaction demonstrates the `Escrow` contract successfully updating the recipient's reputation and awarding an achievement autonomously.

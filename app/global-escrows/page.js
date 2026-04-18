@@ -59,7 +59,7 @@ export default function GlobalMarketplace() {
   return (
     <div className="space-y-10 animate-fade-in pb-20">
       {/* Hero Header */}
-      <section className="relative overflow-hidden rounded-3xl bg-zinc-900 border border-zinc-800 p-8 md:p-12">
+      <section className="hidden md:block relative overflow-hidden rounded-3xl bg-zinc-900 border border-zinc-800 p-8">
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <Globe size={240} className="text-accent-red" />
         </div>
@@ -93,19 +93,21 @@ export default function GlobalMarketplace() {
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-zinc-950 p-1 rounded-xl border border-zinc-900 w-full lg:w-auto">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 lg:flex-none px-6 py-2.5 rounded-lg text-xs font-bold transition-all ${activeTab === tab.id
-                  ? 'bg-zinc-800 text-white shadow-lg'
-                  : 'text-zinc-500 hover:text-zinc-300'
-                }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="w-full lg:w-auto overflow-x-auto no-scrollbar">
+          <div className="flex bg-zinc-950 p-1 rounded-xl border border-zinc-900 min-w-max lg:min-w-0">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-6 py-2.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === tab.id
+                    ? 'bg-zinc-800 text-white shadow-lg'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Arbitration Toggle */}

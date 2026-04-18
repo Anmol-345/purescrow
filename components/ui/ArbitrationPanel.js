@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Gavel, CheckCircle2, User, UserCheck, ShieldAlert, Lock, ArrowRight, Sparkles } from 'lucide-react';
-import { getUserReputation } from '@/lib/stellar';
+import { getUserReputation, resolveEscrowDispute } from '@/lib/stellar';
 import { useWallet } from '@/components/WalletProvider';
 
 export function ArbitrationPanel({ escrow, status }) {
@@ -26,18 +26,24 @@ export function ArbitrationPanel({ escrow, status }) {
   }, [connected, publicKey]);
 
   const isEligible = reputation >= 150;
+  const isParticipant = connected && (publicKey === escrow.sender || publicKey === escrow.recipient);
 
-  const handleVote = (type) => {
+  const handleVote = async (winnerAddress) => {
     setLoading(true);
-    // Simulate on-chain vote
-    setTimeout(() => {
-      setVoted(true);
-      setVoteType(type);
-      setLoading(false);
-    }, 2000);
+    try {
+        console.log(`Submitting real arbitration vote for winner: ${winnerAddress}...`);
+        await resolveEscrowDispute(escrow.id, winnerAddress);
+        setVoted(true);
+        setVoteType(winnerAddress === escrow.sender ? 'BUYER' : 'SELLER');
+    } catch (error) {
+        console.error("Arbitration resolution failed:", error);
+        alert(`Arbitration failed: ${error.message}`);
+    } finally {
+        setLoading(false);
+    }
   };
 
-  if (status !== 'DISPUTED') return null;
+  if (status !== 'DISPUTED' || isParticipant) return null;
 
   return (
     <div className="card-glass border-accent-red/20 overflow-hidden relative">

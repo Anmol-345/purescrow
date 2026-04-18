@@ -3,13 +3,21 @@
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { ArbitrationPanel } from '@/components/ui/ArbitrationPanel';
-import { getEscrow } from '@/lib/stellar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { EvidenceTimeline } from '@/components/ui/EvidenceTimeline';
-import { ArrowLeft, CheckCircle2, ShieldAlert, MessageSquare, Upload, Gavel, ExternalLink, RefreshCw } from 'lucide-react';
+import { useWallet } from '@/components/WalletProvider';
+import { ArrowLeft, CheckCircle2, ShieldAlert, MessageSquare, Upload, Gavel, ExternalLink, RefreshCw, Wallet, Clock } from 'lucide-react';
+import { 
+    getEscrow, 
+    confirmEscrowDelivery, 
+    raiseEscrowDispute, 
+    submitEscrowEvidence, 
+    fundEscrow 
+} from '@/lib/stellar';
 
 export default function EscrowDetail({ params }) {
   const { id } = use(params);
+  const { publicKey, connected } = useWallet();
   const [escrow, setEscrow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -35,12 +43,34 @@ export default function EscrowDetail({ params }) {
     if (!evidenceMsg) return;
     setActionLoading(true);
     
-    // Simulate evidence submission (logic to be implemented later)
-    setTimeout(() => {
+    try {
+        console.log("Submitting real evidence to blockchain...");
+        // In a production app, we would upload the message/file to IPFS here
+        // For now, we use a placeholder CID to demonstrate the contract call
+        const mockCid = `msg-${Date.now()}`;
+        await submitEscrowEvidence(id, mockCid);
         setEvidenceMsg('');
+        await loadEscrow();
+    } catch (error) {
+        console.error("Evidence submission failed:", error);
+        alert(`Failed to submit evidence: ${error.message}`);
+    } finally {
         setActionLoading(false);
-        loadEscrow();
-    }, 1500);
+    }
+  };
+
+  const handleAction = async (actionFn, name) => {
+    setActionLoading(true);
+    try {
+        console.log(`Executing real on-chain action: ${name}...`);
+        await actionFn(id);
+        await loadEscrow();
+    } catch (error) {
+        console.error(`${name} failed:`, error);
+        alert(`${name} failed: ${error.message}`);
+    } finally {
+        setActionLoading(false);
+    }
   };
 
   if (loading) {
@@ -62,7 +92,10 @@ export default function EscrowDetail({ params }) {
     );
   }
 
-  const isDisputed = escrow.status === 'DISPUTED';
+    const isBuyer = connected && publicKey === escrow.sender;
+    const isSeller = connected && publicKey === escrow.recipient;
+    const isArbitrator = !isBuyer && !isSeller;
+    const isDisputed = escrow.status === 'DISPUTED';
 
   return (
     <div className="space-y-8 animate-fade-in pb-20">
@@ -71,16 +104,33 @@ export default function EscrowDetail({ params }) {
         Back to Marketplace
       </Link>
 
+      {/* Role Indicator Banner */}
+      {connected && (
+        <div className={`px-4 py-2 rounded-xl border flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${
+          isBuyer ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+          isSeller ? 'bg-green-500/10 border-green-500/20 text-green-400' :
+          'bg-orange-500/10 border-orange-500/20 text-orange-400'
+        }`}>
+          <div className={`w-2 h-2 rounded-full animate-pulse ${
+            isBuyer ? 'bg-blue-500' : isSeller ? 'bg-green-500' : 'bg-orange-500'
+          }`} />
+          Current Role: {isBuyer ? 'Buyer (Sender)' : isSeller ? 'Seller (Recipient)' : 'Arbitrator / Spectator'}
+        </div>
+      )}
+
       {/* Main Header Card */}
       <div className={`card-glass border-l-4 transition-all ${isDisputed ? 'border-accent-red ring-1 ring-accent-red/20 shadow-[0_0_30px_rgba(239,68,68,0.05)]' : 'border-zinc-800'}`}>
         <div className="flex flex-col md:flex-row justify-between gap-6">
-            <div className="flex-1">
+            <div className="flex-1 text-left">
                 <div className="flex items-center gap-3 mb-4">
                     <StatusBadge status={escrow.status} />
                     <span className="text-zinc-500 text-xs font-mono">ID: {escrow.id}</span>
                 </div>
                 <h1 className="text-3xl font-black mb-2">{escrow.description}</h1>
-                <p className="text-zinc-400">Recipient: <span className="font-mono text-white">{escrow.recipient}</span></p>
+                <div className="space-y-1">
+                    <p className="text-zinc-400 text-xs">Buyer: <span className="font-mono text-white/70">{escrow.sender === publicKey ? "You" : escrow.sender}</span></p>
+                    <p className="text-zinc-400 text-xs">Seller: <span className="font-mono text-white/70">{escrow.recipient === publicKey ? "You" : escrow.recipient}</span></p>
+                </div>
             </div>
             
             <div className={`p-6 rounded-2xl border flex flex-col items-center justify-center min-w-[200px] transition-colors ${isDisputed ? 'bg-accent-red/5 border-accent-red/20' : 'bg-zinc-950 border-zinc-800'}`}>
@@ -97,25 +147,82 @@ export default function EscrowDetail({ params }) {
         {/* Left Column: Actions & Info */}
         <div className="lg:col-span-2 space-y-8">
             <section>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                    <CheckCircle2 size={20} className="text-accent-red" />
-                    Available Actions
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold flex items-center gap-2">
+                        <CheckCircle2 size={20} className="text-accent-red" />
+                        Available Actions
+                    </h3>
+                    {!connected && (
+                        <span className="text-[10px] font-black text-accent-orange uppercase flex items-center gap-1">
+                            Connect wallet to act
+                        </span>
+                    )}
+                </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <ActionButton 
-                        title="Confirm Delivery" 
-                        description="Verify you received the items/service."
-                        icon={<CheckCircle2 className="text-green-500" />}
-                        variant="success"
-                        disabled={escrow.status !== 'FUNDED'}
-                    />
-                    <ActionButton 
-                        title="Raise Dispute" 
-                        description="Escalate this transaction to arbitration."
-                        icon={<ShieldAlert className="text-red-500" />}
-                        variant="danger"
-                        disabled={escrow.status === 'RESOLVED' || escrow.status === 'DISPUTED'}
-                    />
+                    {/* BUYER ACTIONS */}
+                    {isBuyer && (
+                        <>
+                            {escrow.status === 'CREATED' && (
+                                <ActionButton 
+                                    title="Fund Escrow" 
+                                    description="Transfer the agreed amount to the secure contract."
+                                    icon={<Wallet className="text-accent-orange" />}
+                                    variant="success"
+                                    onClick={() => handleAction(fundEscrow, "Funding")}
+                                    disabled={actionLoading}
+                                />
+                            )}
+                            <ActionButton 
+                                title="Confirm Delivery" 
+                                description="Verify you received the items/service to release funds."
+                                icon={<CheckCircle2 className="text-green-500" />}
+                                variant="success"
+                                disabled={escrow.status !== 'FUNDED' || actionLoading}
+                                onClick={() => handleAction(confirmEscrowDelivery, "Confirmation")}
+                            />
+                        </>
+                    )}
+
+                    {/* SELLER INFORMATIONAL STATE */}
+                    {isSeller && (
+                        <div className="col-span-1 md:col-span-2 p-6 rounded-2xl border border-zinc-900 bg-zinc-950/50 flex flex-col items-center text-center">
+                            <Clock className="text-accent-orange mb-3 animate-spin-slow" size={32} />
+                            <h4 className="text-white font-bold mb-1">
+                                {escrow.status === 'CREATED' ? "Waiting for Buyer to Fund" :
+                                 escrow.status === 'FUNDED' ? "Waiting for Buyer to Confirm Delivery" :
+                                 "Escrow Finalized"}
+                            </h4>
+                            <p className="text-xs text-zinc-500 max-w-sm">
+                                {escrow.status === 'CREATED' ? "The buyer has created the escrow but hasn't transferred the funds yet. Once funded, you can proceed with delivery." :
+                                 escrow.status === 'FUNDED' ? "The funds are secured. Please provide the service/item and wait for the buyer to confirm receipt." :
+                                 "This transaction is complete and funds have been handled according to on-chain rules."}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* ARBITRATOR / NON-INVOLVED MESSAGE */}
+                    {isArbitrator && connected && (
+                        <div className="col-span-1 md:col-span-2 p-6 rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/10 flex flex-col items-center text-center">
+                            <ShieldAlert className="text-accent-orange mb-3" size={32} />
+                            <h4 className="text-zinc-400 font-bold mb-1">View Only Access</h4>
+                            <p className="text-xs text-zinc-600 max-w-sm">
+                                You are not a direct participant in this transaction. You can monitor the status or participate in arbitration if a dispute is raised.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* SHARED ACTIONS */}
+                    {(isBuyer || isSeller) && (
+                        <ActionButton 
+                            title="Raise Dispute" 
+                            description="Escalate this transaction to community arbitration."
+                            icon={<ShieldAlert className="text-red-500" />}
+                            variant="danger"
+                            disabled={escrow.status === 'RESOLVED' || escrow.status === 'DELIVERED' || escrow.status === 'DISPUTED' || actionLoading}
+                            onClick={() => handleAction(raiseEscrowDispute, "Dispute")}
+                        />
+                    )}
                 </div>
             </section>
 
@@ -190,10 +297,11 @@ export default function EscrowDetail({ params }) {
   );
 }
 
-function ActionButton({ title, description, icon, variant, disabled = false }) {
+function ActionButton({ title, description, icon, variant, disabled = false, onClick }) {
     return (
         <button 
             disabled={disabled}
+            onClick={onClick}
             className={`
                 group p-5 rounded-2xl border text-left transition-all relative overflow-hidden
                 ${disabled ? 'opacity-40 grayscale cursor-not-allowed border-zinc-800 bg-zinc-900/20' : 

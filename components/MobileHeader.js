@@ -13,12 +13,12 @@ export function MobileHeader() {
                     <Shield className="text-white" size={18} />
                 </div>
                 <span className="text-sm font-black tracking-tighter text-white uppercase italic">
-                    PUR<span className="text-accent-red">ESC</span>
+                    PUR<span className="text-accent-red">ESCROW</span>
                 </span>
             </Link>
 
-            <div className="scale-75 origin-right">
-                <WalletConnection />
+            <div className="flex-shrink-0">
+                <WalletConnection minimal={true} />
             </div>
         </header>
     );

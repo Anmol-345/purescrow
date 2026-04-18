@@ -11,7 +11,8 @@ import {
     AlertTriangle,
     CheckCircle,
     Wallet,
-    Lock
+    Lock,
+    Copy
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useWallet } from "@/components/WalletProvider";
@@ -22,6 +23,7 @@ export default function Profile() {
     const [stats, setStats] = useState({ successful: 0, disputed: 0 });
     const [achievements, setAchievements] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         if (connected && publicKey) {
@@ -52,6 +54,12 @@ export default function Profile() {
             setLoading(false);
         }
     }
+
+    const copyAddress = () => {
+        navigator.clipboard.writeText(publicKey);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     if (!connected) {
         return (
@@ -97,18 +105,28 @@ export default function Profile() {
                     </div>
                 </div>
 
-                <div className="text-center md:text-left">
+                <div className="text-center md:text-left flex-1 min-w-0">
                     <h1 className="text-3xl font-black mb-1">Stellar Operator</h1>
-                    <code className="text-xs text-zinc-500 block mb-4 break-all max-w-xs md:max-w-none">
-                        {publicKey}
-                    </code>
+                    <div 
+                        onClick={copyAddress}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/50 border border-zinc-800 cursor-pointer hover:bg-zinc-800 transition-colors group mb-4 max-w-full"
+                    >
+                        <code className="text-[10px] md:text-xs text-zinc-400 font-mono">
+                            {publicKey.slice(0, 12)}....{publicKey.slice(-12)}
+                        </code>
+                        {copied ? (
+                            <CheckCircle size={14} className="text-green-500" />
+                        ) : (
+                            <Copy size={14} className="text-zinc-600 group-hover:text-zinc-400" />
+                        )}
+                    </div>
                     <div className="flex flex-wrap justify-center md:justify-start gap-3">
                         <Badge label="Verified User" />
                         <Badge label={score > 500 ? "Power Arbitrator" : "Emerging Member"} />
                     </div>
                 </div>
 
-                <div className="md:ml-auto flex flex-col items-center border-l border-zinc-800 pl-8">
+                <div className="w-full md:w-auto md:ml-auto flex flex-col items-center border-t md:border-t-0 md:border-l border-zinc-800 pt-8 md:pt-0 md:pl-8">
                     <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest mb-1">Current Reputation</span>
                     <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-accent-red to-accent-orange">
                         {loading ? "..." : score}
