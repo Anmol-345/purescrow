@@ -27,12 +27,12 @@ export default function Dashboard() {
         fetchAllEscrows(),
         getUserReputation(publicKey)
       ]);
-      
+
       // Filter for user-relevant escrows (sender or recipient)
-      const userEscrows = allEscrows.filter(e => 
+      const userEscrows = allEscrows.filter(e =>
         e.sender === publicKey || e.recipient === publicKey
       );
-      
+
       setEscrows(userEscrows);
       setReputation(score);
     } catch (error) {
@@ -42,7 +42,7 @@ export default function Dashboard() {
     }
   }
 
-  const filteredEscrows = escrows.filter(e => 
+  const filteredEscrows = escrows.filter(e =>
     e.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     e.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     e.recipient.toLowerCase().includes(searchTerm.toLowerCase())
@@ -59,7 +59,7 @@ export default function Dashboard() {
             <Wallet className="text-white" size={18} />
           </div>
         </div>
-        
+
         <div className="max-w-md space-y-4">
           <h1 className="text-4xl font-black tracking-tighter text-white">
             Secure Your <span className="text-accent-red">Identity</span>
@@ -69,7 +69,7 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <button 
+        <button
           onClick={connect}
           className="px-8 py-4 bg-white text-black font-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/10"
         >
@@ -77,18 +77,18 @@ export default function Dashboard() {
         </button>
 
         <div className="grid grid-cols-3 gap-8 pt-12 border-t border-zinc-900 w-full max-w-lg mt-12">
-           <div className="text-center">
-              <span className="block text-xl font-black text-white">0.02s</span>
-              <span className="text-[10px] font-bold text-zinc-600 uppercase">Avg Resolution</span>
-           </div>
-           <div className="text-center">
-              <span className="block text-xl font-black text-white">100%</span>
-              <span className="text-[10px] font-bold text-zinc-600 uppercase">Secure</span>
-           </div>
-           <div className="text-center">
-              <span className="block text-xl font-black text-white">4.2k+</span>
-              <span className="text-[10px] font-bold text-zinc-600 uppercase">Active Users</span>
-           </div>
+          <div className="text-center">
+            <span className="block text-xl font-black text-white">0.02s</span>
+            <span className="text-[10px] font-bold text-zinc-600 uppercase">Avg Resolution</span>
+          </div>
+          <div className="text-center">
+            <span className="block text-xl font-black text-white">100%</span>
+            <span className="text-[10px] font-bold text-zinc-600 uppercase">Secure</span>
+          </div>
+          <div className="text-center">
+            <span className="block text-xl font-black text-white">4.2k+</span>
+            <span className="text-[10px] font-bold text-zinc-600 uppercase">Active Users</span>
+          </div>
         </div>
       </div>
     );
@@ -108,24 +108,24 @@ export default function Dashboard() {
         </div>
 
         <div className="flex bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800 gap-2">
-           <div className="bg-zinc-950 px-6 py-3 rounded-xl flex items-center gap-3 border border-zinc-800 shadow-inner">
-              <TrendingUp className="text-green-500" size={18} />
-              <div>
-                <span className="block text-[10px] uppercase font-bold text-zinc-500">Global Reputation</span>
-                <span className="text-lg font-black text-white">
-                  {loading ? "..." : reputation} <span className="text-xs text-zinc-500">/ 1000</span>
-                </span>
-              </div>
-           </div>
-           <div className="bg-zinc-950 px-6 py-3 rounded-xl flex items-center gap-3 border border-zinc-800 shadow-inner">
-              <ShieldCheck className="text-accent-orange" size={18} />
-              <div>
-                <span className="block text-[10px] uppercase font-bold text-zinc-500">Trust Index</span>
-                <span className="text-lg font-black text-white">
-                  {reputation > 500 ? "Top 5%" : "Emerging"}
-                </span>
-              </div>
-           </div>
+          <div className="bg-zinc-950 px-6 py-3 rounded-xl flex items-center gap-3 border border-zinc-800 shadow-inner">
+            <TrendingUp className="text-green-500" size={18} />
+            <div>
+              <span className="block text-[10px] uppercase font-bold text-zinc-500">Global Reputation</span>
+              <span className="text-lg font-black text-white">
+                {loading ? "..." : reputation} <span className="text-xs text-zinc-500">/ 1000</span>
+              </span>
+            </div>
+          </div>
+          <div className="bg-zinc-950 px-6 py-3 rounded-xl flex items-center gap-3 border border-zinc-800 shadow-inner">
+            <ShieldCheck className="text-accent-orange" size={18} />
+            <div>
+              <span className="block text-[10px] uppercase font-bold text-zinc-500">Trust Index</span>
+              <span className="text-lg font-black text-white">
+                {reputation > 500 ? "Top 5%" : "Emerging"}
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -133,15 +133,15 @@ export default function Dashboard() {
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search by ID, recipient, or description..." 
+          <input
+            type="text"
+            placeholder="Search by ID, recipient, or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-accent-red/20 focus:border-accent-red transition-all"
           />
         </div>
-        <button 
+        <button
           onClick={loadData}
           className="flex items-center gap-2 px-6 py-4 bg-zinc-900 border border-zinc-800 rounded-xl text-sm font-bold text-zinc-300 hover:bg-zinc-800 transition-colors"
         >
@@ -159,7 +159,7 @@ export default function Dashboard() {
           ))
         ) : filteredEscrows.length > 0 ? (
           filteredEscrows.map((escrow) => (
-            <EscrowCard 
+            <EscrowCard
               key={escrow.id}
               id={escrow.id}
               description={escrow.description}
@@ -174,7 +174,7 @@ export default function Dashboard() {
             <p className="text-zinc-500 font-bold italic">No active escrows found on-chain.</p>
           </div>
         )}
-        
+
         {/* Create CTA Card */}
         <Link href="/create" className="border-2 border-dashed border-zinc-800 rounded-2xl flex flex-col items-center justify-center p-8 gap-4 hover:border-accent-red/50 hover:bg-accent-red/[0.02] transition-all cursor-pointer group min-h-[250px]">
           <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center group-hover:scale-110 transition-transform">

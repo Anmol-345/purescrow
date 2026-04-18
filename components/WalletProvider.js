@@ -28,8 +28,13 @@ export function WalletProvider({ children }) {
 
     const connect = async () => {
         try {
-            // Re-ensure theme is set right before opening the modal
-            initWallet();
+            // Ensure the kit is initialized
+            await initWallet();
+            
+            // Force a refresh of the supported wallets right before opening the modal
+            // This helps catch extensions that might have been detected slightly late
+            await kit.refreshSupportedWallets();
+            
             const { address } = await kit.authModal();
             setPublicKey(address);
             setConnected(true);

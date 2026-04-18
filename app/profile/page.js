@@ -2,12 +2,12 @@
 
 import { getUserReputation, fetchAllEscrows, getUserAchievements } from "@/lib/stellar";
 import { AchievementsList } from "@/components/ui/AchievementsList";
-import { 
-    User, 
-    ShieldCheck, 
-    Award, 
-    History, 
-    TrendingUp, 
+import {
+    User,
+    ShieldCheck,
+    Award,
+    History,
+    TrendingUp,
     AlertTriangle,
     CheckCircle,
     Wallet,
@@ -37,14 +37,14 @@ export default function Profile() {
                 fetchAllEscrows(),
                 getUserAchievements(publicKey)
             ]);
-            
+
             setScore(repScore);
             setAchievements(earnedAchievements);
-            
+
             const userEscrows = allEscrows.filter(e => e.sender === publicKey || e.recipient === publicKey);
             const successful = userEscrows.filter(e => e.status === 'COMPLETED' || e.status === 'DELIVERED').length;
             const disputed = userEscrows.filter(e => e.status === 'DISPUTED').length;
-            
+
             setStats({ successful, disputed });
         } catch (error) {
             console.error("Profile load failed:", error);
@@ -64,7 +64,7 @@ export default function Profile() {
                         <Lock className="text-white" size={18} />
                     </div>
                 </div>
-                
+
                 <div className="max-w-md space-y-4">
                     <h1 className="text-4xl font-black tracking-tighter text-white">
                         Private <span className="text-accent-orange">Profile</span>
@@ -74,7 +74,7 @@ export default function Profile() {
                     </p>
                 </div>
 
-                <button 
+                <button
                     onClick={connect}
                     className="px-8 py-4 bg-accent-orange text-white font-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent-orange/10"
                 >
@@ -148,12 +148,12 @@ export default function Profile() {
                             <Award size={18} className="text-accent-orange" />
                             Achievements
                         </h3>
-                        <AchievementsList 
-                            earnedIds={achievements} 
-                            loading={loading} 
+                        <AchievementsList
+                            earnedIds={achievements}
+                            loading={loading}
                         />
                     </section>
-                    
+
                     <div className="p-6 bg-accent-red/5 border border-accent-red/10 rounded-2xl relative overflow-hidden group">
                         <div className="relative z-10">
                             <TrendingUp className="text-accent-red mb-3" size={24} />

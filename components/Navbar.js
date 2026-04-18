@@ -20,29 +20,29 @@ export function Navbar() {
       </Link>
 
       <nav className="flex-1 w-full space-y-2">
-        <SidebarLink 
-          href="/" 
-          icon={<LayoutDashboard size={20} />} 
-          label="Dashboard" 
-          active={pathname === '/'} 
+        <SidebarLink
+          href="/"
+          icon={<LayoutDashboard size={20} />}
+          label="Dashboard"
+          active={pathname === '/'}
         />
-        <SidebarLink 
-          href="/global-escrows" 
-          icon={<Globe size={20} />} 
-          label="Marketplace" 
-          active={pathname === '/global-escrows'} 
+        <SidebarLink
+          href="/global-escrows"
+          icon={<Globe size={20} />}
+          label="Marketplace"
+          active={pathname === '/global-escrows'}
         />
-        <SidebarLink 
-          href="/create" 
-          icon={<PlusCircle size={20} />} 
-          label="Create" 
-          active={pathname === '/create'} 
+        <SidebarLink
+          href="/create"
+          icon={<PlusCircle size={20} />}
+          label="Create"
+          active={pathname === '/create'}
         />
-        <SidebarLink 
-          href="/profile" 
-          icon={<UserCircle size={20} />} 
-          label="Profile" 
-          active={pathname === '/profile'} 
+        <SidebarLink
+          href="/profile"
+          icon={<UserCircle size={20} />}
+          label="Profile"
+          active={pathname === '/profile'}
         />
       </nav>
 
@@ -65,12 +65,12 @@ export function Navbar() {
 
 function SidebarLink({ href, icon, label, active = false }) {
   return (
-    <Link 
+    <Link
       href={href}
       className={`
         flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group
-        ${active 
-          ? 'bg-zinc-900 border border-zinc-800 text-white shadow-xl shadow-black/20' 
+        ${active
+          ? 'bg-zinc-900 border border-zinc-800 text-white shadow-xl shadow-black/20'
           : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50'}
       `}
     >
@@ -86,7 +86,7 @@ function SidebarLink({ href, icon, label, active = false }) {
       `}>
         {label}
       </span>
-      
+
       {active && (
         <div className="hidden md:block ml-auto w-1 h-4 rounded-full bg-accent-red animate-pulse" />
       )}

@@ -2,6 +2,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { WalletProvider } from "@/components/WalletProvider";
 import { Navbar } from "@/components/Navbar";
+import { MobileHeader } from "@/components/MobileHeader";
+import { BottomNav } from "@/components/BottomNav";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,19 +14,25 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
         <WalletProvider>
-          <div className="flex min-h-screen">
-            {/* Navigational Sidebar */}
+          <div className="flex flex-col md:flex-row min-h-screen">
+            {/* Desktop Navigational Sidebar */}
             <Navbar />
 
+            {/* Mobile Header */}
+            <MobileHeader />
+
             {/* Main Content Area */}
-            <main className="flex-1 ml-20 md:ml-64 p-4 md:p-12 min-h-screen bg-[#0B0B0B]">
+            <main className="flex-1 transition-all duration-500 pt-20 md:pt-12 md:ml-64 pb-24 md:pb-12 px-4 md:px-12 min-h-screen bg-[#0B0B0B]">
               <div className="max-w-6xl mx-auto">
                 {children}
               </div>
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            <BottomNav />
           </div>
         </WalletProvider>
       </body>

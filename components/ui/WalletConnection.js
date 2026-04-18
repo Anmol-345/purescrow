@@ -28,7 +28,7 @@ export function WalletConnection() {
                         {publicKey.slice(0, 6)}...{publicKey.slice(-4)}
                     </span>
                 </div>
-                <button 
+                <button
                     onClick={disconnect}
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-accent-red hover:bg-accent-red/5 transition-all group"
                 >
@@ -40,7 +40,7 @@ export function WalletConnection() {
     }
 
     return (
-        <button 
+        <button
             onClick={handleConnect}
             disabled={isConnecting}
             className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl bg-gradient-to-br from-accent-red to-accent-orange text-white font-black text-sm shadow-lg shadow-accent-red/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
