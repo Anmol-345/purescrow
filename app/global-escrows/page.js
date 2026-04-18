@@ -1,20 +1,38 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { EscrowCard } from "@/components/ui/EscrowCard";
-import { MOCK_ESCROWS } from "@/lib/stellar";
-import { Search, Filter, Globe, Gavel, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { fetchAllEscrows } from "@/lib/stellar";
+import { Search, Filter, Globe, Gavel, Sparkles, SlidersHorizontal, RefreshCw } from 'lucide-react';
 import { useWallet } from "@/components/WalletProvider";
 
 export default function GlobalMarketplace() {
   const { connected } = useWallet();
+  const [escrows, setEscrows] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('ALL');
   const [onlyArbitrable, setOnlyArbitrable] = useState(false);
 
+  useEffect(() => {
+    loadEscrows();
+  }, []);
+
+  async function loadEscrows() {
+    setLoading(true);
+    try {
+      const data = await fetchAllEscrows();
+      setEscrows(data);
+    } catch (error) {
+      console.error("Marketplace fetch failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   // Filter logic
   const filteredEscrows = useMemo(() => {
-    return MOCK_ESCROWS.filter(escrow => {
+    return escrows.filter(escrow => {
       // 1. Status Filter
       const statusMatch = activeTab === 'ALL' || escrow.status === activeTab;
       
@@ -24,12 +42,12 @@ export default function GlobalMarketplace() {
         escrow.id.includes(searchQuery) ||
         escrow.recipient.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // 3. Arbitration Filter (Reputation > 50 and status is DISPUTED)
-      const arbitrationMatch = !onlyArbitrable || (escrow.status === 'DISPUTED' && escrow.reputationScore > 50);
+      // 3. Arbitration Filter (Disputed)
+      const arbitrationMatch = !onlyArbitrable || escrow.status === 'DISPUTED';
 
       return statusMatch && searchMatch && arbitrationMatch;
     });
-  }, [searchQuery, activeTab, onlyArbitrable]);
+  }, [escrows, searchQuery, activeTab, onlyArbitrable]);
 
   const tabs = [
     { id: 'ALL', label: 'All Escrows' },
@@ -122,7 +140,13 @@ export default function GlobalMarketplace() {
       </div>
 
       {/* Grid */}
-      {filteredEscrows.length > 0 ? (
+      {loading ? (
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="h-[250px] bg-zinc-900/40 animate-pulse rounded-2xl border border-zinc-900" />
+            ))}
+        </section>
+      ) : filteredEscrows.length > 0 ? (
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEscrows.map((escrow) => (
                 <div key={escrow.id} className={escrow.status === 'DISPUTED' ? 'ring-1 ring-red-500/30 rounded-2xl shadow-[0_0_20px_rgba(239,68,68,0.05)]' : ''}>
@@ -132,7 +156,7 @@ export default function GlobalMarketplace() {
                         amount={escrow.amount}
                         status={escrow.status}
                         recipient={escrow.recipient}
-                        reputation={escrow.reputationScore}
+                        reputation={100} // Fetching individual rep would be too many RPCs here, could be added later
                     />
                 </div>
             ))}

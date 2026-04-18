@@ -1,13 +1,52 @@
 "use client";
 
+import React from "react";
 import { EscrowCard } from "@/components/ui/EscrowCard";
-import { MOCK_ESCROWS } from "@/lib/stellar";
+import { fetchAllEscrows, getUserReputation } from "@/lib/stellar";
 import { Search, Filter, TrendingUp, ShieldCheck, PlusCircle, Wallet, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useWallet } from "@/components/WalletProvider";
 
 export default function Dashboard() {
-  const { connected, connect } = useWallet();
+  const { connected, connect, publicKey } = useWallet();
+  const [escrows, setEscrows] = React.useState([]);
+  const [reputation, setReputation] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  React.useEffect(() => {
+    if (connected && publicKey) {
+      loadData();
+    }
+  }, [connected, publicKey]);
+
+  async function loadData() {
+    setLoading(true);
+    try {
+      const [allEscrows, score] = await Promise.all([
+        fetchAllEscrows(),
+        getUserReputation(publicKey)
+      ]);
+      
+      // Filter for user-relevant escrows (sender or recipient)
+      const userEscrows = allEscrows.filter(e => 
+        e.sender === publicKey || e.recipient === publicKey
+      );
+      
+      setEscrows(userEscrows);
+      setReputation(score);
+    } catch (error) {
+      console.error("Dashboard load failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const filteredEscrows = escrows.filter(e => 
+    e.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.recipient.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!connected) {
     return (
@@ -73,14 +112,18 @@ export default function Dashboard() {
               <TrendingUp className="text-green-500" size={18} />
               <div>
                 <span className="block text-[10px] uppercase font-bold text-zinc-500">Global Reputation</span>
-                <span className="text-lg font-black text-white">842 <span className="text-xs text-zinc-500">/ 1000</span></span>
+                <span className="text-lg font-black text-white">
+                  {loading ? "..." : reputation} <span className="text-xs text-zinc-500">/ 1000</span>
+                </span>
               </div>
            </div>
            <div className="bg-zinc-950 px-6 py-3 rounded-xl flex items-center gap-3 border border-zinc-800 shadow-inner">
               <ShieldCheck className="text-accent-orange" size={18} />
               <div>
                 <span className="block text-[10px] uppercase font-bold text-zinc-500">Trust Index</span>
-                <span className="text-lg font-black text-white">Top 2%</span>
+                <span className="text-lg font-black text-white">
+                  {reputation > 500 ? "Top 5%" : "Emerging"}
+                </span>
               </div>
            </div>
         </div>
@@ -93,31 +136,47 @@ export default function Dashboard() {
           <input 
             type="text" 
             placeholder="Search by ID, recipient, or description..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-accent-red/20 focus:border-accent-red transition-all"
           />
         </div>
-        <button className="flex items-center gap-2 px-6 py-4 bg-zinc-900 border border-zinc-800 rounded-xl text-sm font-bold text-zinc-300 hover:bg-zinc-800 transition-colors">
-          <Filter size={18} />
-          Filter
+        <button 
+          onClick={loadData}
+          className="flex items-center gap-2 px-6 py-4 bg-zinc-900 border border-zinc-800 rounded-xl text-sm font-bold text-zinc-300 hover:bg-zinc-800 transition-colors"
+        >
+          <TrendingUp size={18} className={loading ? "animate-spin" : ""} />
+          Refresh
         </button>
       </div>
 
       {/* Escrow Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {MOCK_ESCROWS.map((escrow) => (
-          <EscrowCard 
-            key={escrow.id}
-            id={escrow.id}
-            description={escrow.description}
-            amount={escrow.amount}
-            status={escrow.status}
-            recipient={escrow.recipient}
-            reputation={escrow.reputationScore}
-          />
-        ))}
+        {loading ? (
+          // Skeleton loaders
+          [1, 2, 3].map(i => (
+            <div key={i} className="h-[250px] bg-zinc-900/30 animate-pulse rounded-2xl border border-zinc-900" />
+          ))
+        ) : filteredEscrows.length > 0 ? (
+          filteredEscrows.map((escrow) => (
+            <EscrowCard 
+              key={escrow.id}
+              id={escrow.id}
+              description={escrow.description}
+              amount={escrow.amount}
+              status={escrow.status}
+              recipient={escrow.recipient}
+              reputation={reputation} // Simplified for dashboard
+            />
+          ))
+        ) : (
+          <div className="col-span-full py-12 text-center bg-zinc-900/20 rounded-2xl border border-zinc-900 border-dashed">
+            <p className="text-zinc-500 font-bold italic">No active escrows found on-chain.</p>
+          </div>
+        )}
         
         {/* Create CTA Card */}
-        <Link href="/create" className="border-2 border-dashed border-zinc-800 rounded-2xl flex flex-col items-center justify-center p-8 gap-4 hover:border-accent-red/50 hover:bg-accent-red/[0.02] transition-all cursor-pointer group">
+        <Link href="/create" className="border-2 border-dashed border-zinc-800 rounded-2xl flex flex-col items-center justify-center p-8 gap-4 hover:border-accent-red/50 hover:bg-accent-red/[0.02] transition-all cursor-pointer group min-h-[250px]">
           <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center group-hover:scale-110 transition-transform">
             <PlusCircle className="text-zinc-600 group-hover:text-accent-red" size={24} />
           </div>

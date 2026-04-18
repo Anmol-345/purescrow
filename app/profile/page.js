@@ -1,6 +1,7 @@
 "use client";
 
-import { getUserReputation } from "@/lib/stellar";
+import { getUserReputation, fetchAllEscrows, getUserAchievements } from "@/lib/stellar";
+import { AchievementsList } from "@/components/ui/AchievementsList";
 import { 
     User, 
     ShieldCheck, 
@@ -18,12 +19,39 @@ import { useWallet } from "@/components/WalletProvider";
 export default function Profile() {
     const { connected, publicKey, connect } = useWallet();
     const [score, setScore] = useState(100);
+    const [stats, setStats] = useState({ successful: 0, disputed: 0 });
+    const [achievements, setAchievements] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (connected && publicKey) {
-            getUserReputation(publicKey).then(setScore);
+            loadProfileData();
         }
     }, [connected, publicKey]);
+
+    async function loadProfileData() {
+        setLoading(true);
+        try {
+            const [repScore, allEscrows, earnedAchievements] = await Promise.all([
+                getUserReputation(publicKey),
+                fetchAllEscrows(),
+                getUserAchievements(publicKey)
+            ]);
+            
+            setScore(repScore);
+            setAchievements(earnedAchievements);
+            
+            const userEscrows = allEscrows.filter(e => e.sender === publicKey || e.recipient === publicKey);
+            const successful = userEscrows.filter(e => e.status === 'COMPLETED' || e.status === 'DELIVERED').length;
+            const disputed = userEscrows.filter(e => e.status === 'DISPUTED').length;
+            
+            setStats({ successful, disputed });
+        } catch (error) {
+            console.error("Profile load failed:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     if (!connected) {
         return (
@@ -75,15 +103,15 @@ export default function Profile() {
                         {publicKey}
                     </code>
                     <div className="flex flex-wrap justify-center md:justify-start gap-3">
-                        <Badge label="Verified Seller" />
-                        <Badge label="Elite Arbitrator" />
+                        <Badge label="Verified User" />
+                        <Badge label={score > 500 ? "Power Arbitrator" : "Emerging Member"} />
                     </div>
                 </div>
 
                 <div className="md:ml-auto flex flex-col items-center border-l border-zinc-800 pl-8">
                     <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest mb-1">Current Reputation</span>
                     <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-accent-red to-accent-orange">
-                        {score}
+                        {loading ? "..." : score}
                     </span>
                 </div>
             </section>
@@ -92,35 +120,24 @@ export default function Profile() {
                 {/* Stats & History */}
                 <div className="md:col-span-2 space-y-8">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <StatCard icon={<CheckCircle className="text-green-500" />} label="Successful Deals" value="42" />
-                        <StatCard icon={<AlertTriangle className="text-red-500" />} label="Disputes Lost" value="0" />
+                        <StatCard icon={<CheckCircle className="text-green-500" />} label="Successful Transactions" value={loading ? "..." : stats.successful} />
+                        <StatCard icon={<AlertTriangle className="text-red-500" />} label="Active Disputes" value={loading ? "..." : stats.disputed} />
                     </div>
 
                     <section className="card-glass">
                         <h3 className="font-bold flex items-center gap-2 mb-6">
                             <History size={18} className="text-zinc-500" />
-                            Reputation History
+                            Escrow History
                         </h3>
-                        <div className="space-y-6">
-                            <HistoryItem 
-                                action="Successfully Delivered" 
-                                project="UI Design Kit" 
-                                delta="+10" 
-                                date="3 days ago" 
-                            />
-                            <HistoryItem 
-                                action="Dispute Resolved (Winner)" 
-                                project="API Integration" 
-                                delta="+15" 
-                                date="1 week ago" 
-                            />
-                            <HistoryItem 
-                                action="Escrow Initialized" 
-                                project="Logo Design" 
-                                delta="0" 
-                                date="2 weeks ago" 
-                            />
-                        </div>
+                        {loading ? (
+                            <div className="space-y-4 animate-pulse">
+                                {[1, 2, 3].map(i => <div key={i} className="h-10 bg-zinc-900 rounded-lg" />)}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12">
+                                <p className="text-zinc-500 italic text-sm">Detailed history tracking coming soon via Indexer.</p>
+                            </div>
+                        )}
                     </section>
                 </div>
 
@@ -131,22 +148,10 @@ export default function Profile() {
                             <Award size={18} className="text-accent-orange" />
                             Achievements
                         </h3>
-                        <div className="space-y-4">
-                            <Achievement 
-                                title="Genesis User" 
-                                description="Member of the first 100 users."
-                                earned 
-                            />
-                            <Achievement 
-                                title="Flawless Record" 
-                                description="No disputes lost in 10+ deals."
-                                earned 
-                            />
-                            <Achievement 
-                                title="High Roller" 
-                                description="Completed transactions over 5000 XLM."
-                            />
-                        </div>
+                        <AchievementsList 
+                            earnedIds={achievements} 
+                            loading={loading} 
+                        />
                     </section>
                     
                     <div className="p-6 bg-accent-red/5 border border-accent-red/10 rounded-2xl relative overflow-hidden group">

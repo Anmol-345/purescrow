@@ -1,47 +1,66 @@
 "use client";
 
+import React, { useState, useEffect, use } from 'react';
+import Link from 'next/link';
 import { ArbitrationPanel } from '@/components/ui/ArbitrationPanel';
+import { getEscrow } from '@/lib/stellar';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { EvidenceTimeline } from '@/components/ui/EvidenceTimeline';
+import { ArrowLeft, CheckCircle2, ShieldAlert, MessageSquare, Upload, Gavel, ExternalLink, RefreshCw } from 'lucide-react';
 
 export default function EscrowDetail({ params }) {
   const { id } = use(params);
-  const escrow = MOCK_ESCROWS.find(e => e.id === id) || MOCK_ESCROWS[0];
-  
-  const [loading, setLoading] = useState(false);
+  const [escrow, setEscrow] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [evidenceMsg, setEvidenceMsg] = useState('');
   
-  // Local state for demonstration
-  const [currentEvidence, setCurrentEvidence] = useState([
-    {
-        id: 'e1',
-        uploader: 'GC2D...9012',
-        timestamp: '2 hours ago',
-        cid: 'bafybeigclv...mock1',
-        type: 'file'
+  useEffect(() => {
+    loadEscrow();
+  }, [id]);
+
+  async function loadEscrow() {
+    setLoading(true);
+    try {
+      const data = await getEscrow(id);
+      setEscrow(data);
+    } catch (error) {
+      console.error("Escrow fetch failed:", error);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  }
 
   const handleEvidenceSubmit = async () => {
     if (!evidenceMsg) return;
-    setLoading(true);
+    setActionLoading(true);
     
-    // Simulate IPFS upload
-    const cid = await uploadToIPFS(evidenceMsg);
-    
+    // Simulate evidence submission (logic to be implemented later)
     setTimeout(() => {
-        setCurrentEvidence([
-            ...currentEvidence,
-            {
-                id: Math.random().toString(),
-                uploader: 'YOU (GARD...)',
-                timestamp: 'Just now',
-                cid: cid,
-                type: 'message'
-            }
-        ]);
         setEvidenceMsg('');
-        setLoading(false);
+        setActionLoading(false);
+        loadEscrow();
     }, 1500);
   };
+
+  if (loading) {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+            <RefreshCw className="animate-spin text-accent-red" size={40} />
+            <p className="text-zinc-500 font-bold animate-pulse uppercase tracking-widest text-xs">Fetching Escrow Details...</p>
+        </div>
+    );
+  }
+
+  if (!escrow) {
+    return (
+        <div className="text-center py-20 bg-zinc-900/20 rounded-3xl border border-zinc-900 border-dashed">
+            <h2 className="text-2xl font-black text-white">Escrow Not Found</h2>
+            <p className="text-zinc-500 mt-2">The requested transaction could not be located on the blockchain.</p>
+            <Link href="/global-escrows" className="text-accent-red font-bold hover:underline mt-6 inline-block">Return to Marketplace</Link>
+        </div>
+    );
+  }
 
   const isDisputed = escrow.status === 'DISPUTED';
 
@@ -107,7 +126,13 @@ export default function EscrowDetail({ params }) {
                         Evidence Timeline
                     </h3>
                 </div>
-                <EvidenceTimeline evidence={currentEvidence} />
+                <EvidenceTimeline evidence={escrow.evidenceCids.map((cid, i) => ({
+                    id: `e-${i}`,
+                    uploader: 'ON-CHAIN',
+                    timestamp: 'Archive Data',
+                    cid: cid,
+                    type: 'file'
+                }))} />
             </section>
         </div>
 
@@ -115,7 +140,7 @@ export default function EscrowDetail({ params }) {
         <div className="space-y-6">
             {/* Arbitration Panel for Disputed Escrows */}
             {isDisputed && (
-                <ArbitrationPanel escrowId={escrow.id} status={escrow.status} />
+                <ArbitrationPanel escrow={escrow} status={escrow.status} />
             )}
 
             <div className="card-glass bg-zinc-900/40">

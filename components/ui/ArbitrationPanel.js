@@ -5,7 +5,7 @@ import { Gavel, CheckCircle2, User, UserCheck, ShieldAlert, Lock, ArrowRight, Sp
 import { getUserReputation } from '@/lib/stellar';
 import { useWallet } from '@/components/WalletProvider';
 
-export function ArbitrationPanel({ escrowId, status }) {
+export function ArbitrationPanel({ escrow, status }) {
   const { connected, publicKey } = useWallet();
   const [reputation, setReputation] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -25,7 +25,7 @@ export function ArbitrationPanel({ escrowId, status }) {
     loadReputation();
   }, [connected, publicKey]);
 
-  const isEligible = reputation > 50;
+  const isEligible = reputation >= 150;
 
   const handleVote = (type) => {
     setLoading(true);
@@ -82,7 +82,7 @@ export function ArbitrationPanel({ escrowId, status }) {
                     </div>
                 </div>
                 <span className="text-lg font-black text-white">
-                    {reputation} <span className="text-[10px] text-zinc-500">/ 50 RP</span>
+                    {reputation} <span className="text-[10px] text-zinc-500">/ 150 RP</span>
                 </span>
             </div>
             
@@ -111,7 +111,7 @@ export function ArbitrationPanel({ escrowId, status }) {
             <div className="space-y-4">
                 <div className="flex flex-col gap-3">
                     <button 
-                        onClick={() => handleVote('BUYER')}
+                        onClick={() => handleVote(escrow.sender)}
                         disabled={!isEligible || loading || !connected}
                         className={`
                             group flex items-center justify-between p-4 rounded-xl border transition-all
@@ -131,7 +131,7 @@ export function ArbitrationPanel({ escrowId, status }) {
                     </button>
 
                     <button 
-                        onClick={() => handleVote('SELLER')}
+                        onClick={() => handleVote(escrow.recipient)}
                         disabled={!isEligible || loading || !connected}
                         className={`
                             group flex items-center justify-between p-4 rounded-xl border transition-all
@@ -162,7 +162,7 @@ export function ArbitrationPanel({ escrowId, status }) {
                             <Sparkles size={12} />
                             Reputation Booster
                         </div>
-                        <p className="text-[10px] text-zinc-500">You need <span className="text-white font-bold">{50 - reputation} more points</span> to participate in network governance.</p>
+                        <p className="text-[10px] text-zinc-500">You need <span className="text-white font-bold">{150 - reputation} more points</span> to participate in network governance.</p>
                     </div>
                 ) : (
                     <p className="text-[10px] text-zinc-600 text-center italic mt-2">

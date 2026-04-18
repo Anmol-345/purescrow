@@ -61,8 +61,8 @@ Create a `.env.local` file in the root:
 ```env
 NEXT_PUBLIC_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
 NEXT_PUBLIC_PINATA_JWT=your_pinata_jwt_here
-NEXT_PUBLIC_ESCROW_CONTRACT_ID=CAFEUDN7H6LWNEZ4VSVHV23WGEGHMD2ZBB2GN3H4UYIUETOQBN4ZNXTM
-NEXT_PUBLIC_REPUTATION_CONTRACT_ID=CBQ7OC4V4YKAYHJPZ6FVM7VFBAGQ7POCBJIRSNUVFZC7ULLNDFLYLVKX
+NEXT_PUBLIC_ESCROW_CONTRACT_ID=CADRPJIYYUUNLMJQYXJIMRUWEX752QII333QH3YP7EM5OFJO5GRW3VAH
+NEXT_PUBLIC_REPUTATION_CONTRACT_ID=CD6K2TMLQBZZ7V3RT2KTAN2YZLVOUZ5OWQM4HZ2MC4DQXNOOTXT5UTO7
 ```
 
 ---
@@ -71,5 +71,5 @@ NEXT_PUBLIC_REPUTATION_CONTRACT_ID=CBQ7OC4V4YKAYHJPZ6FVM7VFBAGQ7POCBJIRSNUVFZC7U
 
 1. **Dispute Raised**: Either party locks the funds.
 2. **Evidence Phase**: Parties submit CIDs of images/logs via the IPFS panel.
-3. **Resolution**: Arbitrator reviews the timeline and calls `resolve_dispute(id, winner)`.
+3. **Resolution**: Qualified Arbitrators (Reputation >= 150) review the timeline and call `resolve_dispute(id, winner, arbitrator)`.
 4. **Reputation Update**: The smart contract automatically updates the global score of both parties based on the outcome.

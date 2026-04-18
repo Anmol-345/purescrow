@@ -31,7 +31,6 @@ pub enum DataKey {
     Escrow(u64),
     Counter,
     ReputationId,
-    Arbitrator,
 }
 
 #[contract]
@@ -39,10 +38,9 @@ pub struct EscrowContract;
 
 #[contractimpl]
 impl EscrowContract {
-    /// Initialize with Reputation Contract Address and Arbitrator
-    pub fn init(env: Env, reputation_id: Address, arbitrator: Address) {
+    /// Initialize with Reputation Contract Address
+    pub fn init(env: Env, reputation_id: Address) {
         env.storage().instance().set(&DataKey::ReputationId, &reputation_id);
-        env.storage().instance().set(&DataKey::Arbitrator, &arbitrator);
         env.storage().instance().set(&DataKey::Counter, &0u64);
     }
 
@@ -101,8 +99,8 @@ impl EscrowContract {
         let rep_id: Address = env.storage().instance().get(&DataKey::ReputationId).unwrap();
         env.invoke_contract::<()>(
             &rep_id,
-            &soroban_sdk::Symbol::new(&env, "update_score"),
-            vec![&env, escrow.recipient.clone().into_val(&env), 10i32.into_val(&env)],
+            &soroban_sdk::Symbol::new(&env, "record_deal"),
+            vec![&env, escrow.recipient.clone().into_val(&env)],
         );
 
         env.events().publish(("escrow", "delivered", id), escrow.recipient);
@@ -138,10 +136,21 @@ impl EscrowContract {
         env.events().publish(("escrow", "evidence", id), (caller, cid));
     }
 
-    /// Resolve dispute (Arbitrator only)
-    pub fn resolve_dispute(env: Env, id: u64, winner: Address) {
-        let arbitrator: Address = env.storage().instance().get(&DataKey::Arbitrator).expect("arbitrator not set");
+    /// Resolve dispute (Arbitrator only - requires score >= 150)
+    pub fn resolve_dispute(env: Env, id: u64, winner: Address, arbitrator: Address) {
         arbitrator.require_auth();
+
+        // Call Reputation Contract to get score
+        let rep_id: Address = env.storage().instance().get(&DataKey::ReputationId).unwrap();
+        let score: i32 = env.invoke_contract::<i32>(
+            &rep_id,
+            &soroban_sdk::Symbol::new(&env, "get_score"),
+            vec![&env, arbitrator.clone().into_val(&env)],
+        );
+
+        if score < 150 {
+            panic!("threshold not met: reputation score must be >= 150 to be an arbitrator");
+        }
 
         let mut escrow: Escrow = env.storage().persistent().get(&DataKey::Escrow(id)).expect("escrow not found");
         
@@ -152,14 +161,23 @@ impl EscrowContract {
         escrow.status = EscrowStatus::Resolved;
         env.storage().persistent().set(&DataKey::Escrow(id), &escrow);
 
-        // Update Reputation via low-level call
-        let rep_id: Address = env.storage().instance().get(&DataKey::ReputationId).unwrap();
+        // Record Arbitration for the arbitrator
+        env.invoke_contract::<()>(
+            &rep_id,
+            &soroban_sdk::Symbol::new(&env, "record_arbitration"),
+            vec![&env, arbitrator.into_val(&env)],
+        );
 
         if winner == escrow.recipient {
             env.invoke_contract::<()>(
                 &rep_id,
-                &soroban_sdk::Symbol::new(&env, "update_score"),
-                vec![&env, escrow.recipient.clone().into_val(&env), 15i32.into_val(&env)],
+                &soroban_sdk::Symbol::new(&env, "record_dispute_winner"),
+                vec![&env, escrow.recipient.clone().into_val(&env)],
+            );
+            env.invoke_contract::<()>(
+                &rep_id,
+                &soroban_sdk::Symbol::new(&env, "record_deal"),
+                vec![&env, escrow.recipient.clone().into_val(&env)],
             );
             env.invoke_contract::<()>(
                 &rep_id,
@@ -169,11 +187,26 @@ impl EscrowContract {
         } else {
             env.invoke_contract::<()>(
                 &rep_id,
+                &soroban_sdk::Symbol::new(&env, "record_dispute_winner"),
+                vec![&env, escrow.sender.clone().into_val(&env)],
+            );
+            env.invoke_contract::<()>(
+                &rep_id,
                 &soroban_sdk::Symbol::new(&env, "update_score"),
                 vec![&env, escrow.recipient.clone().into_val(&env), (-30i32).into_val(&env)],
             );
         }
 
         env.events().publish(("escrow", "resolved", id), winner);
+    }
+
+    /// Getter: Get counter value
+    pub fn get_counter(env: Env) -> u64 {
+        env.storage().instance().get(&DataKey::Counter).unwrap_or(0)
+    }
+
+    /// Getter: Get escrow details by ID
+    pub fn get_escrow(env: Env, id: u64) -> Option<Escrow> {
+        env.storage().persistent().get(&DataKey::Escrow(id))
     }
 }
